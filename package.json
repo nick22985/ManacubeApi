@@ -1,0 +1,43 @@
+{
+	"name": "@nick22985/mana-api",
+	"version": "1.0.1",
+	"description": "A typescript npm packages to interact with the mana api",
+	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"lib/**/*"
+	],
+	"keywords": [
+		"mana",
+		"api",
+		"minecraft",
+		"server",
+		"client",
+		"NodeJs",
+		"TypeScript"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nick22985/mana-api"
+	},
+	"scripts": {
+		"start": "nodemon --exec ts-node src/index.ts",
+		"test": "jest"
+	},
+	"author": "nick22985",
+	"license": "MIT",
+	"dependencies": {
+		"axios": "^0.26.0"
+	},
+	"devDependencies": {
+		"@types/jest": "^27.4.1",
+		"@types/node": "^17.0.17",
+		"dotenv": "^16.0.0",
+		"jest": "^27.4.5",
+		"nodemon": "^2.0.15",
+		"ts-node": "^10.7.0"
+	}
+}
