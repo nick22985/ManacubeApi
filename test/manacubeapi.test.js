@@ -1,15 +1,14 @@
-//FIXME: OLD WAKATIME TESTS
-const wakatime = require("../lib");
-const dotenv = require("dotenv");
-dotenv.config();
-const wakatime_api_key = process.env.WAKATIME_API_KEY;
+const manacubeApi = require("../lib");
 
-const wakaClient = new wakatime.WakaTimeApi(wakatime_api_key);
-const myWakaId = process.env.WAKATIMEID;
+const manacubeClient = new manacubeApi.ManaCubeApi();
 
-test("GetUser", async () => {
-	let getUser = await wakaClient.getUser(myWakaId).catch((err) => {
+let uuid = "f91c3347-4be2-48f2-be73-9a4323f08497";
+
+test("getUserSvas", async () => {
+	let getUserSvas = await manacubeClient.getUserSvas(uuid, 'olympus').catch((err) => {
 		console.log(err);
 		throw err;
 	});
 });
+
+
