@@ -4,33 +4,140 @@ class ManaCubeApi {
 	axiosConfig: AxiosInstance;
 	/**
 	 * @desc Creates a api client.
-	 * @param apiKey wakatime api key
 	 * @param baseUrl wakatime api base url
 	 * @example
-	 * const wakaTimeApi = new WakaTimeApi("1f89b85e-54a8-4f75-86a2-f9b7d47ba30e");
-	 * const wakaTimeApi = new WakaTimeApi(apiKey, "https://wakatime.com/api/v1/");
+	 * const manacubeApi = new ManaCubeApi("https://api.manacube.com/");
 	 */
-	constructor(private apiKey: string, baseUrl = "https://wakatime.com/api/v1/") {
+	constructor(baseUrl = "https://api.manacube.com/") {
 		this.axiosConfig = axios.create({
 			baseURL: baseUrl,
-			headers: {
-				Authorization: `Basic ${Buffer.from(this.apiKey).toString("base64")}`,
-			},
 		});
 	}
+
+
+
 	/**
-	 * @desc Gets a users stats.
-	 * @scope email
-	 * @param userId users wakatime id
-	 * @returns A single user.
-	 * @example getUser("1f89b85e-54a8-4f75-86a2-f9b7d47ba30e");
+	 *
+	 * @param uuid MCC UUID
+	 * @param gamemode gamemode to get stats for
+	 * @returns A single users sva's
 	 */
-	getUser(userId: string): Promise<JSON> {
-		if (!userId) {
-			throw new Error("userId is required");
+	getUserSvas(uuid: string, gamemode: string): Promise<JSON> {
+		if (!uuid) {
+			throw new Error("uuid is required");
 		}
-		return this.axiosConfig.get(`users/${userId}`).then((response) => response.data);
+		if (!gamemode) {
+			throw new Error("gamemode is required");
+		}
+		return this.axiosConfig.get(`svas/${uuid}/${gamemode}`).then((response: { data: any; }) => response.data);
 	}
+
+	/**
+	 *
+	 * @param gamemode Gamemode to get stats for
+	 * @returns Get all SVAs that a player owns on a specific gamemode
+	 */
+	getAllGamemodeSvas(gamemode: string): Promise<JSON> {
+		if (!gamemode) {
+			throw new Error("gamemode is required");
+		}
+		return this.axiosConfig.get(`svas/${gamemode}`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @returns List of patrons uuid's
+	 */
+	getPatrons(): Promise<JSON> {
+		return this.axiosConfig.get(`patrons/uuids`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @param uuid UUID of player to get stats for
+	 * @returns Get a single player's stats
+	 */
+	getPlayerLevels(uuid: string): Promise<JSON> {
+		if (!uuid) {
+			throw new Error("uuid is required");
+		}
+		return this.axiosConfig.get(`manalevel/${uuid}`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @param total Total amount of guilds to get
+	 * @returns Get a list of x guilds stats
+	 */
+	getTopGuilds(total: number): Promise<JSON> {
+		if (!total) {
+			throw new Error("total is required");
+		}
+		return this.axiosConfig.get(`guilds/top/${total}`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @param uuid UUID of player to get stats for
+	 * @returns Get a single player's stats
+	 */
+	getPlayerGuild(uuid: string): Promise<JSON> {
+		if (!uuid) {
+			throw new Error("uuid is required");
+		}
+		return this.axiosConfig.get(`guild/player/${uuid}`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @param uuid UUID of player to get stats for
+	 * @returns Get a single player's friend list
+	 */
+	getUserFriends(uuid: string): Promise<JSON> {
+		if (!uuid) {
+			throw new Error("uuid is required");
+		}
+		return this.axiosConfig.get(`friends/${uuid}`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @param season Factions Season payouts to get stats for
+	 * @returns Get a list of factions season payouts
+	 */
+	getFactionsSeasonPayouts(season: number): Promise<JSON> {
+		if (!season) {
+			throw new Error("season is required");
+		}
+		return this.axiosConfig.get(`factions/payouts/${season}`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @param placeholder placeholder
+	 * @returns placeholder
+	 */
+	getGracePlaceholder(placeholder: string): Promise<JSON> {
+		if (!placeholder) {
+			throw new Error("placeholder is required");
+		}
+		return this.axiosConfig.get(`factions/placeholder/${placeholder}`).then((response: { data: any; }) => response.data);
+	}
+
+	/**
+	 *
+	 * @param uuid UUID of player to get stats for
+	 * @returns Get a single player's cubit stats
+	 */
+	getPlayersCubitBalance(uuid: string): Promise<JSON> {
+		if (!uuid) {
+			throw new Error("uuid is required");
+		}
+		return this.axiosConfig.get(`cubits/${uuid}`).then((response: { data: any; }) => response.data);
+	}
+
+
+
 }
 
 export { ManaCubeApi };

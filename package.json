@@ -1,5 +1,5 @@
 {
-	"name": "@nick22985/mana-api",
+	"name": "@nick22985/manacubeApi",
 	"version": "1.0.1",
 	"description": "A typescript npm packages to interact with the mana api",
 	"main": "lib/index.js",
@@ -12,6 +12,16 @@
 	],
 	"keywords": [
 		"mana",
+		"cube",
+		"manacube",
+		"Mana Cube",
+		"Mana Cube API",
+		"Mana Cube API Client",
+		"Mana Cube API Client Library",
+		"Mana Cube API Client Library for Node.js",
+		"Mana Cube API Client Library for TypeScript",
+		"Mana Cube API Client Library for TypeScript and Node.js",
+		"Mana Cube API Client Library for TypeScript and Node.js (manacube-api)",
 		"api",
 		"minecraft",
 		"server",
@@ -21,7 +31,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/nick22985/mana-api"
+		"url": "https://github.com/nick22985/ManacubeApi"
 	},
 	"scripts": {
 		"start": "nodemon --exec ts-node src/index.ts",
