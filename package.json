@@ -1,5 +1,5 @@
 {
-	"name": "manacubeApi",
+	"name": "manacubeapi",
 	"version": "0.0.1",
 	"description": "A typescript npm packages to interact with the mana api",
 	"main": "lib/index.js",
