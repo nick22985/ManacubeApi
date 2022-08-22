@@ -2,26 +2,32 @@ import axios, { AxiosInstance } from "axios";
 
 class ManaCubeApi {
 	axiosConfig: AxiosInstance;
+	disableSafeUUIDCheck: boolean;
 	/**
 	 * @desc Creates a api client.
 	 * @param baseUrl manacube api api base url
 	 * @example
 	 * const manacubeApi = new ManaCubeApi("https://api.manacube.com/api/");
 	 */
-	constructor(baseUrl = "https://api.manacube.com/api/") {
+	constructor(baseUrl = "https://api.manacube.com/api/", disableSafeUUIDCheck = false) {
 		this.axiosConfig = axios.create({
 			baseURL: baseUrl,
 		});
+		this.disableSafeUUIDCheck = disableSafeUUIDCheck;
 	}
 
 
 	private safe_uuid(uuid: string) {
-		if(uuid.includes("-")) uuid = uuid.replace(/-/g, '')
+		if(this.disableSafeUUIDCheck) return uuid;
 		let uuidMatch = /([0-9a-f]{8})(?:-|)([0-9a-f]{4})(?:-|)(4[0-9a-f]{3})(?:-|)([89ab][0-9a-f]{3})(?:-|)([0-9a-f]{12})/;
 		let uuidReplace = "$1-$2-$3-$4-$5";
 		return uuid.replace(uuidMatch, uuidReplace);
 	}
 
+	safeUUIDCheck(UUIDCheck?: boolean) {
+		if(!UUIDCheck) return !this.disableSafeUUIDCheck
+		this.disableSafeUUIDCheck = UUIDCheck;
+	}
 
 	/**
 	 *
