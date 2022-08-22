@@ -6,13 +6,20 @@ class ManaCubeApi {
 	 * @desc Creates a api client.
 	 * @param baseUrl manacube api api base url
 	 * @example
-	 * const manacubeApi = new ManaCubeApi("https://api.manacube.com/");
+	 * const manacubeApi = new ManaCubeApi("https://api.manacube.com/api/");
 	 */
-	constructor(baseUrl = "https://api.manacube.com/") {
+	constructor(baseUrl = "https://api.manacube.com/api/") {
 		this.axiosConfig = axios.create({
 			baseURL: baseUrl,
 		});
 	}
+
+
+	private safe_uuid(uuid: string) {
+		if(uuid.includes("-")) uuid = uuid.replace(/-/g, '')
+		return uuid.substr(0,8)+"-"+uuid.substr(8,4)+"-"+uuid.substr(12,4)+"-"+uuid.substr(16,4)+"-"+uuid.substr(20);
+	}
+
 
 	/**
 	 *
@@ -27,7 +34,7 @@ class ManaCubeApi {
 		if (!gamemode) {
 			throw new Error("gamemode is required");
 		}
-		return this.axiosConfig.get(`svas/${uuid}/${gamemode}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`svas/${this.safe_uuid(uuid)}/${gamemode}`).then((response: { data: any; }) => response.data);
 	}
 
 	/**
@@ -59,7 +66,7 @@ class ManaCubeApi {
 		if (!uuid) {
 			throw new Error("uuid is required");
 		}
-		return this.axiosConfig.get(`manalevel/${uuid}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`manalevel/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
 	}
 
 	/**
@@ -83,7 +90,7 @@ class ManaCubeApi {
 		if (!uuid) {
 			throw new Error("uuid is required");
 		}
-		return this.axiosConfig.get(`guild/player/${uuid}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`guild/player/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
 	}
 
 	/**
@@ -95,7 +102,7 @@ class ManaCubeApi {
 		if (!uuid) {
 			throw new Error("uuid is required");
 		}
-		return this.axiosConfig.get(`friends/${uuid}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`friends/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
 	}
 
 	/**
@@ -131,7 +138,7 @@ class ManaCubeApi {
 		if (!uuid) {
 			throw new Error("uuid is required");
 		}
-		return this.axiosConfig.get(`cubits/${uuid}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`cubits/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
 	}
 }
 
