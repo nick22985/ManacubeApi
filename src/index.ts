@@ -4,7 +4,7 @@ class ManaCubeApi {
 	axiosConfig: AxiosInstance;
 	/**
 	 * @desc Creates a api client.
-	 * @param baseUrl wakatime api base url
+	 * @param baseUrl manacube api api base url
 	 * @example
 	 * const manacubeApi = new ManaCubeApi("https://api.manacube.com/");
 	 */
@@ -13,8 +13,6 @@ class ManaCubeApi {
 			baseURL: baseUrl,
 		});
 	}
-
-
 
 	/**
 	 *
@@ -135,9 +133,6 @@ class ManaCubeApi {
 		}
 		return this.axiosConfig.get(`cubits/${uuid}`).then((response: { data: any; }) => response.data);
 	}
-
-
-
 }
 
 export { ManaCubeApi };
