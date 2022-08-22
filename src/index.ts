@@ -17,7 +17,9 @@ class ManaCubeApi {
 
 	private safe_uuid(uuid: string) {
 		if(uuid.includes("-")) uuid = uuid.replace(/-/g, '')
-		return uuid.substr(0,8)+"-"+uuid.substr(8,4)+"-"+uuid.substr(12,4)+"-"+uuid.substr(16,4)+"-"+uuid.substr(20);
+		let uuidMatch = /([0-9a-f]{8})(?:-|)([0-9a-f]{4})(?:-|)(4[0-9a-f]{3})(?:-|)([89ab][0-9a-f]{3})(?:-|)([0-9a-f]{12})/;
+		let uuidReplace = "$1-$2-$3-$4-$5";
+		return uuid.replace(uuidMatch, uuidReplace);
 	}
 
 

@@ -9,6 +9,7 @@ test("getUserSvas", async () => {
 		console.log(err);
 		throw err;
 	});
+	console.log(getUserSvas)
 });
 
 
