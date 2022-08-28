@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from 'axios';
 
 class ManaCubeApi {
 	axiosConfig: AxiosInstance;
@@ -6,27 +6,28 @@ class ManaCubeApi {
 	/**
 	 * @desc Creates a api client.
 	 * @param baseUrl manacube api api base url
+	 * @param disableSafeUUIDCheck disable safe uuid check
 	 * @example
 	 * const manacubeApi = new ManaCubeApi("https://api.manacube.com/api/");
 	 */
-	constructor(baseUrl = "https://api.manacube.com/api/", disableSafeUUIDCheck = false) {
+	constructor(baseUrl = 'https://api.manacube.com/api/', disableSafeUUIDCheck = false) {
 		this.axiosConfig = axios.create({
 			baseURL: baseUrl,
 		});
 		this.disableSafeUUIDCheck = disableSafeUUIDCheck;
 	}
 
-
 	private safe_uuid(uuid: string) {
-		if(this.disableSafeUUIDCheck) return uuid;
+		if (this.disableSafeUUIDCheck) return uuid;
 		let uuidMatch = /([0-9a-f]{8})(?:-|)([0-9a-f]{4})(?:-|)(4[0-9a-f]{3})(?:-|)([89ab][0-9a-f]{3})(?:-|)([0-9a-f]{12})/;
-		let uuidReplace = "$1-$2-$3-$4-$5";
-		if(!uuid.match(uuidMatch)) return 'Invalid UUID';
+		let uuidReplace = '$1-$2-$3-$4-$5';
+		if (!uuid.match(uuidMatch)) return 'Invalid UUID';
+
 		return uuid.replace(uuidMatch, uuidReplace);
 	}
 
 	safeUUIDCheck(UUIDCheck?: boolean) {
-		if(!UUIDCheck) return this.disableSafeUUIDCheck = !this.disableSafeUUIDCheck
+		if (!UUIDCheck) return (this.disableSafeUUIDCheck = !this.disableSafeUUIDCheck);
 		this.disableSafeUUIDCheck = UUIDCheck;
 	}
 
@@ -38,12 +39,12 @@ class ManaCubeApi {
 	 */
 	getUserSvas(uuid: string, gamemode: string): Promise<JSON> {
 		if (!uuid) {
-			throw new Error("uuid is required");
+			throw new Error('uuid is required');
 		}
 		if (!gamemode) {
-			throw new Error("gamemode is required");
+			throw new Error('gamemode is required');
 		}
-		return this.axiosConfig.get(`svas/${this.safe_uuid(uuid)}/${gamemode}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`svas/${this.safe_uuid(uuid)}/${gamemode}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -53,9 +54,9 @@ class ManaCubeApi {
 	 */
 	getAllGamemodeSvas(gamemode: string): Promise<JSON> {
 		if (!gamemode) {
-			throw new Error("gamemode is required");
+			throw new Error('gamemode is required');
 		}
-		return this.axiosConfig.get(`svas/${gamemode}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`svas/${gamemode}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -63,7 +64,7 @@ class ManaCubeApi {
 	 * @returns List of patrons uuid's
 	 */
 	getPatrons(): Promise<JSON> {
-		return this.axiosConfig.get(`patrons/uuids`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`patrons/uuids`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -73,9 +74,9 @@ class ManaCubeApi {
 	 */
 	getPlayerLevels(uuid: string): Promise<JSON> {
 		if (!uuid) {
-			throw new Error("uuid is required");
+			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`manalevel/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`manalevel/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -85,9 +86,9 @@ class ManaCubeApi {
 	 */
 	getTopGuilds(total: number): Promise<JSON> {
 		if (!total) {
-			throw new Error("total is required");
+			throw new Error('total is required');
 		}
-		return this.axiosConfig.get(`guilds/top/${total}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`guilds/top/${total}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -97,9 +98,9 @@ class ManaCubeApi {
 	 */
 	getPlayerGuild(uuid: string): Promise<JSON> {
 		if (!uuid) {
-			throw new Error("uuid is required");
+			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`guild/player/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`guild/player/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -109,9 +110,9 @@ class ManaCubeApi {
 	 */
 	getUserFriends(uuid: string): Promise<JSON> {
 		if (!uuid) {
-			throw new Error("uuid is required");
+			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`friends/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`friends/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -121,9 +122,9 @@ class ManaCubeApi {
 	 */
 	getFactionsSeasonPayouts(season: number): Promise<JSON> {
 		if (!season) {
-			throw new Error("season is required");
+			throw new Error('season is required');
 		}
-		return this.axiosConfig.get(`factions/payouts/${season}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`factions/payouts/${season}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -133,9 +134,9 @@ class ManaCubeApi {
 	 */
 	getGracePlaceholder(placeholder: string): Promise<JSON> {
 		if (!placeholder) {
-			throw new Error("placeholder is required");
+			throw new Error('placeholder is required');
 		}
-		return this.axiosConfig.get(`factions/placeholder/${placeholder}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`factions/placeholder/${placeholder}`).then((response: { data: any }) => response.data);
 	}
 
 	/**
@@ -145,9 +146,9 @@ class ManaCubeApi {
 	 */
 	getPlayersCubitBalance(uuid: string): Promise<JSON> {
 		if (!uuid) {
-			throw new Error("uuid is required");
+			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`cubits/${this.safe_uuid(uuid)}`).then((response: { data: any; }) => response.data);
+		return this.axiosConfig.get(`cubits/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
 	}
 }
 
