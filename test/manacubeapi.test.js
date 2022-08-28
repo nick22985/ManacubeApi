@@ -30,10 +30,11 @@ test("getUserSvas", async () => {
 		console.log(err);
 		throw err;
 	});
-	if(getUserSvas.length == 0) {
-		console.log(getUserSvas);
-		throw err
-	}
+	// NOT IMPLEMENTED YET
+	// if(getUserSvas.length == 0) {
+	// 	console.log(getUserSvas);
+	// 	throw err
+	// }
 });
 
 test("getAllGamemodeSvas", async () => {
@@ -53,7 +54,7 @@ test("getPatrons", async () => {
 		console.log(err);
 		throw err;
 	});
-	if(patrons.length == 0) {
+	if (patrons.length == 0) {
 		console.log(patrons);
 		throw err
 	}
@@ -64,7 +65,7 @@ test("getPlayerLevels", async () => {
 		console.log(err);
 		throw err;
 	});
-	if(playerLevel.length == 0) {
+	if (playerLevel.length == 0) {
 		console.log(playerLevel);
 		throw err
 	}
@@ -75,7 +76,7 @@ test("getTopGuilds", async () => {
 		console.log(err);
 		throw err;
 	});
-	if(getTopGuilds.length != 50) {
+	if (getTopGuilds.length != 50) {
 		console.log(getTopGuilds);
 		throw err
 	}
@@ -98,7 +99,7 @@ test("getUserFriends", async () => {
 		console.log(err);
 		throw err;
 	});
-	if(getUserFriends.length == 0) {
+	if (getUserFriends.length == 0) {
 		console.log(getUserFriends);
 		throw err
 	}
@@ -109,7 +110,7 @@ test("getUserFriends", async () => {
 		console.log(err);
 		throw err;
 	});
-	if(getUserFriends.length == 0) {
+	if (getUserFriends.length == 0) {
 		console.log(getUserFriends);
 		throw err
 	}
@@ -142,7 +143,7 @@ test("getPlayersCubitBalance", async () => {
 		console.log(err);
 		throw err;
 	});
-	if(getPlayersCubitBalance.length == 0) {
+	if (getPlayersCubitBalance.length == 0) {
 		console.log(getPlayersCubitBalance);
 		throw err
 	}
