@@ -63,10 +63,26 @@ class ManaCubeApi {
 	 *
 	 * @returns List of patrons uuid's
 	 */
-	getPatrons(): Promise<JSON> {
+	getAllPatrons(): Promise<JSON> {
 		return this.axiosConfig.get(`patrons/uuids`).then((response: { data: any }) => response.data);
 	}
 
+	/**
+	 *
+	 * @returns Get a list of all patrons plus names
+	 */
+	getPatrons(): Promise<JSON> {
+		return this.axiosConfig.get(`patrons/patron`).then((response: { data: any }) => response.data);
+	}
+
+
+	/**
+	 *
+	 * @returns Gets a list of all patron+ uuid and names
+	 */
+	getPatronPlus(): Promise<JSON> {
+		return this.axiosConfig.get(`patrons/patronplus`).then((response: { data: any }) => response.data);
+	}
 	/**
 	 *
 	 * @param uuid UUID of player to get stats for
