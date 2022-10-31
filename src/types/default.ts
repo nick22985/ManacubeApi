@@ -1,4 +1,4 @@
-interface gamemodeSvas {
+export interface gamemodeSvas {
 	itemType: string;
 	slot: string;
 	version: number;
@@ -12,7 +12,7 @@ interface gamemodeSvas {
 	leatherColor: any;
 }
 
-interface userSva {
+export interface userSva {
 	id: number;
 	itemType: string;
 	originalOwner: string;
@@ -21,26 +21,26 @@ interface userSva {
 	customModelData: number;
 }
 
-interface svaSalesData {
+export interface svaSalesData {
 	currency: string;
 	averageValue: number;
 	timeSold: number;
 }
 
-interface svaCirculationData {}
+export interface svaCirculationData {}
 
-interface uuidName {
+export interface uuidName {
 	uuid: string;
 	name: string;
 }
 
-interface playerStats {
+export interface playerStats {
 	uuid: string;
 	totalExp: number;
 	stats: Array<any>;
 }
 
-interface shopItem {
+export interface shopItem {
 	time: number;
 	shopID: string;
 	itemID: string;
@@ -51,7 +51,7 @@ interface shopItem {
 	periodMS: number;
 }
 
-interface economyVolumeHistory {
+export interface economyVolumeHistory {
 	time: number;
 	shopID: string;
 	itemID: string;
@@ -60,7 +60,7 @@ interface economyVolumeHistory {
 	periodMS: number;
 }
 
-interface guild {
+export interface guild {
 	id: number;
 	tag: string;
 	createDate: string;
@@ -71,12 +71,12 @@ interface guild {
 	members: Array<any>;
 }
 
-interface friend {
+export interface friend {
 	uuid: string;
 	name: string;
 }
 
-interface faction {
+export interface faction {
 	time: number;
 	week: string;
 	statistic: string;

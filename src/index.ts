@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { gamemodeSvas, userSva, svaSalesData, uuidName, playerStats, shopItem, economyVolumeHistory, guild, faction, friend } from './types/default';
 
 class ManaCubeApi {
 	axiosConfig: AxiosInstance;
@@ -22,13 +23,12 @@ class ManaCubeApi {
 		let uuidMatch = /([0-9a-f]{8})(?:-|)([0-9a-f]{4})(?:-|)(4[0-9a-f]{3})(?:-|)([89ab][0-9a-f]{3})(?:-|)([0-9a-f]{12})/;
 		let uuidReplace = '$1-$2-$3-$4-$5';
 		if (!uuid.match(uuidMatch)) return 'Invalid UUID';
-
 		return uuid.replace(uuidMatch, uuidReplace);
 	}
 
 	safeUUIDCheck(UUIDCheck?: boolean) {
-		if (!UUIDCheck) return (this.disableSafeUUIDCheck = !this.disableSafeUUIDCheck);
-		this.disableSafeUUIDCheck = UUIDCheck;
+		if (UUIDCheck == undefined) return (this.disableSafeUUIDCheck = !this.disableSafeUUIDCheck);
+		return (this.disableSafeUUIDCheck = UUIDCheck);
 	}
 
 	/**
