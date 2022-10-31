@@ -33,38 +33,62 @@ class ManaCubeApi {
 
 	/**
 	 *
+	 * @param gamemode Gamemode to get stats for
+	 * @returns Get all SVAs that a player owns on a specific gamemode
+	 */
+	async getAllGamemodeSvas(gamemode: string): Promise<Array<gamemodeSvas>> {
+		if (!gamemode) {
+			throw new Error('gamemode is required');
+		}
+		const response = await this.axiosConfig.get(`svas/${gamemode}`);
+		return response.data as gamemodeSvas[];
+	}
+
+	/**
+	 *
 	 * @param uuid MCC UUID
 	 * @param gamemode gamemode to get stats for
 	 * @returns A single users sva's
 	 */
-	getUserSvas(uuid: string, gamemode: string): Promise<JSON> {
-		if (!uuid) {
-			throw new Error('uuid is required');
-		}
-		if (!gamemode) {
-			throw new Error('gamemode is required');
-		}
-		return this.axiosConfig.get(`svas/${this.safe_uuid(uuid)}/${gamemode}`).then((response: { data: any }) => response.data);
+	async getUserSvas(uuid: string, gamemode: string): Promise<Array<userSva>> {
+		if (!uuid) throw new Error('uuid is required');
+		if (!gamemode) throw new Error('gamemode is required');
+		const response = await this.axiosConfig.get(`svas/${this.safe_uuid(uuid)}/${gamemode}`);
+		return response.data as Array<userSva>;
+	}
+	/**
+	 *
+	 * @param gamemode Gamemode to get stats for
+	 * @param sva SVA to get stats for
+	 * @returns Get a list of sales data for a specific sva within a specific gamemode
+	 */
+	async getSvaSalesData(gamemode: string, sva: string): Promise<Array<svaSalesData>> {
+		if (!gamemode) throw new Error('gamemode is required');
+		if (!sva) throw new Error('sva is required');
+		const response = await this.axiosConfig.get(`svas/sales/${gamemode}/${sva}`);
+		return response.data as Array<svaSalesData>;
 	}
 
 	/**
 	 *
 	 * @param gamemode Gamemode to get stats for
-	 * @returns Get all SVAs that a player owns on a specific gamemode
+	 * @param sva SVA to get stats for
+	 * @returns Get total circulation of a specific sva within a specific gamemode
 	 */
-	getAllGamemodeSvas(gamemode: string): Promise<JSON> {
-		if (!gamemode) {
-			throw new Error('gamemode is required');
-		}
-		return this.axiosConfig.get(`svas/${gamemode}`).then((response: { data: any }) => response.data);
+	async getSvaCirculationData(gamemode: string, sva: string): Promise<svaCirculationData> {
+		if (!gamemode) throw new Error('gamemode is required');
+		if (!sva) throw new Error('sva is required');
+		const response = await this.axiosConfig.get(`svas/circulation/${gamemode}/${sva}`);
+		return response.data as svaCirculationData;
 	}
 
 	/**
 	 *
 	 * @returns List of patrons uuid's
 	 */
-	getPatrons(): Promise<JSON> {
-		return this.axiosConfig.get(`patrons/uuids`).then((response: { data: any }) => response.data);
+	async getPatrons(): Promise<JSON> {
+		const response = await this.axiosConfig.get(`patrons/uuids`);
+		return response.data;
 	}
 
 	/**
@@ -72,11 +96,12 @@ class ManaCubeApi {
 	 * @param uuid UUID of player to get stats for
 	 * @returns Get a single player's stats
 	 */
-	getPlayerLevels(uuid: string): Promise<JSON> {
+	async getPlayerLevels(uuid: string): Promise<JSON> {
 		if (!uuid) {
 			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`manalevel/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
+		const response = await this.axiosConfig.get(`manalevel/${this.safe_uuid(uuid)}`);
+		return response.data;
 	}
 
 	/**
@@ -84,11 +109,12 @@ class ManaCubeApi {
 	 * @param total Total amount of guilds to get
 	 * @returns Get a list of x guilds stats
 	 */
-	getTopGuilds(total: number): Promise<JSON> {
+	async getTopGuilds(total: number): Promise<JSON> {
 		if (!total) {
 			throw new Error('total is required');
 		}
-		return this.axiosConfig.get(`guilds/top/${total}`).then((response: { data: any }) => response.data);
+		const response = await this.axiosConfig.get(`guilds/top/${total}`);
+		return response.data;
 	}
 
 	/**
@@ -96,11 +122,12 @@ class ManaCubeApi {
 	 * @param uuid UUID of player to get stats for
 	 * @returns Get a single player's stats
 	 */
-	getPlayerGuild(uuid: string): Promise<JSON> {
+	async getPlayerGuild(uuid: string): Promise<JSON> {
 		if (!uuid) {
 			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`guild/player/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
+		const response = await this.axiosConfig.get(`guild/player/${this.safe_uuid(uuid)}`);
+		return response.data;
 	}
 
 	/**
@@ -108,11 +135,12 @@ class ManaCubeApi {
 	 * @param uuid UUID of player to get stats for
 	 * @returns Get a single player's friend list
 	 */
-	getUserFriends(uuid: string): Promise<JSON> {
+	async getUserFriends(uuid: string): Promise<JSON> {
 		if (!uuid) {
 			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`friends/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
+		const response = await this.axiosConfig.get(`friends/${this.safe_uuid(uuid)}`);
+		return response.data;
 	}
 
 	/**
@@ -120,11 +148,12 @@ class ManaCubeApi {
 	 * @param season Factions Season payouts to get stats for
 	 * @returns Get a list of factions season payouts
 	 */
-	getFactionsSeasonPayouts(season: number): Promise<JSON> {
+	async getFactionsSeasonPayouts(season: number): Promise<JSON> {
 		if (!season) {
 			throw new Error('season is required');
 		}
-		return this.axiosConfig.get(`factions/payouts/${season}`).then((response: { data: any }) => response.data);
+		const response = await this.axiosConfig.get(`factions/payouts/${season}`);
+		return response.data;
 	}
 
 	/**
@@ -132,11 +161,12 @@ class ManaCubeApi {
 	 * @param placeholder placeholder
 	 * @returns placeholder
 	 */
-	getGracePlaceholder(placeholder: string): Promise<JSON> {
+	async getGracePlaceholder(placeholder: string): Promise<JSON> {
 		if (!placeholder) {
 			throw new Error('placeholder is required');
 		}
-		return this.axiosConfig.get(`factions/placeholder/${placeholder}`).then((response: { data: any }) => response.data);
+		const response = await this.axiosConfig.get(`factions/placeholder/${placeholder}`);
+		return response.data;
 	}
 
 	/**
@@ -144,11 +174,12 @@ class ManaCubeApi {
 	 * @param uuid UUID of player to get stats for
 	 * @returns Get a single player's cubit stats
 	 */
-	getPlayersCubitBalance(uuid: string): Promise<JSON> {
+	async getPlayersCubitBalance(uuid: string): Promise<JSON> {
 		if (!uuid) {
 			throw new Error('uuid is required');
 		}
-		return this.axiosConfig.get(`cubits/${this.safe_uuid(uuid)}`).then((response: { data: any }) => response.data);
+		const response = await this.axiosConfig.get(`cubits/${this.safe_uuid(uuid)}`);
+		return response.data;
 	}
 }
 
