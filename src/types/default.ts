@@ -28,3 +28,61 @@ interface svaSalesData {
 }
 
 interface svaCirculationData {}
+
+interface uuidName {
+	uuid: string;
+	name: string;
+}
+
+interface playerStats {
+	uuid: string;
+	totalExp: number;
+	stats: Array<any>;
+}
+
+interface shopItem {
+	time: number;
+	shopID: string;
+	itemID: string;
+	newPrice: number;
+	oldPrice: number;
+	basePrice: number;
+	item: string;
+	periodMS: number;
+}
+
+interface economyVolumeHistory {
+	time: number;
+	shopID: string;
+	itemID: string;
+	volume: number;
+	item: string;
+	periodMS: number;
+}
+
+interface guild {
+	id: number;
+	tag: string;
+	createDate: string;
+	rank: number;
+	level: number;
+	description: string;
+	homeServer: string;
+	members: Array<any>;
+}
+
+interface friend {
+	uuid: string;
+	name: string;
+}
+
+interface faction {
+	time: number;
+	week: string;
+	statistic: string;
+	player_uuid: string;
+	factionName: string;
+	place: number;
+	value: number;
+	payout: number;
+}
