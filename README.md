@@ -119,12 +119,26 @@ Get gamemode sva's
 manacubeClient.getAllGamemodeSvas(gamemode)
 ```
 
-Get Patrons list
+Get Patrons list of patrons and patron+
 
 ```js
 @returns List of patrons uuids
 
+manacubeClient.getAllPatrons()
+```
+
+Gets a list of all Patrons
+```js
+@returns List of patrons uuids
+
 manacubeClient.getPatrons()
+```
+
+Get a list of all patron+
+```js
+@returns List of patrons uuids
+
+manacubeClient.getPatronPlus()
 ```
 
 Get player levels
