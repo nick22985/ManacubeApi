@@ -27,6 +27,12 @@ export interface svaSalesData {
 	timeSold: number;
 }
 
+export interface playerStatistics {
+	playerID: string;
+	gamemode: string;
+	statistics: any[];
+}
+
 export interface svaCirculationData {}
 
 export interface uuidName {
