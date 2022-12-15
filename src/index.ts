@@ -135,7 +135,6 @@ class ManaCubeApi {
 			.then((response: { data: any }) => response.data)
 			.catch((e: any) => e);
 	}
-
 	/**
 	 *
 	 * @returns Get a list of all patrons plus names
