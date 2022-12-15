@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { gamemodeSvas, userSva, svaSalesData, uuidName, playerStats, shopItem, economyVolumeHistory, guild, faction, friend } from './types/default';
+import { economyVolumeHistory, faction, friend, gamemodeSvas, guild, playerStats, shopItem, svaSalesData, userSva, uuidName } from './types/default';
 
 class ManaCubeApi {
 	axiosConfig: AxiosInstance;
@@ -131,7 +131,7 @@ class ManaCubeApi {
 	 */
 	getPatronPlus(): Promise<Array<uuidName>> {
 		return this.axiosConfig
-			.get(`patrons/patronplus`)
+			.get(`patrons/patronsplus`)
 			.then((response: { data: any }) => response.data)
 			.catch((e: any) => e);
 	}
@@ -142,7 +142,7 @@ class ManaCubeApi {
 	 */
 	getPatrons(): Promise<Array<uuidName>> {
 		return this.axiosConfig
-			.get(`patrons/patron`)
+			.get(`patrons/patrons`)
 			.then((response: { data: any }) => response.data)
 			.catch((e: any) => e);
 	}
