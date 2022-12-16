@@ -66,6 +66,14 @@ export interface economyVolumeHistory {
 	periodMS: number;
 }
 
+export interface guildPlayer {
+	uuid: string;
+	name: string;
+	guildId: number;
+	joinDate: string;
+	rank: number;
+}
+
 export interface guild {
 	id: number;
 	tag: string;
@@ -74,7 +82,7 @@ export interface guild {
 	level: number;
 	description: string;
 	homeServer: string;
-	members: Array<any>;
+	members: Array<guildPlayer>;
 }
 
 export interface friend {

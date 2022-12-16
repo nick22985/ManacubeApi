@@ -220,7 +220,7 @@ class ManaCubeApi {
 	async getPlayerGuild(uuid: string): Promise<guild> {
 		if (!uuid) throw new Error('uuid is required');
 		return this.axiosConfig
-			.get(`guilds/${this.safe_uuid(uuid)}`)
+			.get(`guilds/player/${this.safe_uuid(uuid)}`)
 			.then((response: { data: any }) => response.data)
 			.catch((e: any) => e);
 	}
