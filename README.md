@@ -97,7 +97,7 @@ Reforms UUID to the correct formatting for the api or returns `Invalid UUID` if 
 manacubeClient.safeUUIDCheck('f91c3347-4be2-48f2-be73-9a4323f08497'); //return f91c3347-4be2-48f2-be73-9a4323f08497
 manacubeClient.safeUUIDCheck('f91c3347-4be248f2be73-9a4323f08497'); //return f91c3347-4be2-48f2-be73-9a4323f08497
 manacubeClient.safeUUIDCheck('f91c33474be248f2be739a4323f08497'); //return f91c3347-4be2-48f2-be73-9a4323f08497
-manacubeClient.safeUUIDCheck('f91c33474be248f2be739a4323f08497'); //return Invalid UUID
+manacubeClient.safeUUIDCheck('f91c33474be248323f08497'); //return Invalid UUID
 ```
 
 Get Users sva's
