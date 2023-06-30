@@ -71,14 +71,14 @@ export interface guildPlayer {
 	name: string;
 	guildId: number;
 	joinDate: string;
-	rank: number;
+	rank: string;
 }
 
 export interface guild {
 	id: number;
 	tag: string;
 	createDate: string;
-	rank: string;
+	rank: number;
 	level: number;
 	description: string;
 	homeServer: string;
