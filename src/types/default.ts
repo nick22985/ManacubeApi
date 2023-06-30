@@ -78,7 +78,7 @@ export interface guild {
 	id: number;
 	tag: string;
 	createDate: string;
-	rank: number;
+	rank: string;
 	level: number;
 	description: string;
 	homeServer: string;
