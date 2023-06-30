@@ -41,7 +41,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`svas/${gamemode}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -56,7 +55,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`svas/${gamemode}/${this.safe_uuid(uuid)}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 	/**
 	 *
@@ -70,7 +68,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`svas/sales/${gamemode}/${sva}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -85,7 +82,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`svas/circulation/${gamemode}/${sva}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -100,7 +96,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`statistics/${this.safe_uuid(uuid)}/${game}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -111,7 +106,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`statistics/gamemodes`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -122,7 +116,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`patrons/uuids`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -133,7 +126,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`patrons/patronsplus`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 	/**
 	 *
@@ -143,7 +135,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`patrons/patrons`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -157,7 +148,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`manalevel/${this.safe_uuid(uuid)}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 	/**
 	 *
@@ -168,7 +158,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`manaeconomy/prices/${gamemode}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -181,7 +170,7 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`manaeconomy/history/volume/${gamemode}/${page}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
+
 	}
 
 	/**
@@ -196,7 +185,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`manaeconomy/history/prices/${gamemode}/${page}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -209,7 +197,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`guilds/top/${total}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -222,7 +209,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`guilds/player/${this.safe_uuid(uuid)}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -235,7 +221,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`friends/${this.safe_uuid(uuid)}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -250,7 +235,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`factions/placeholder/${placeholder}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -263,7 +247,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`factions/payouts/${season}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 
 	/**
@@ -276,7 +259,6 @@ class ManaCubeApi {
 		return this.axiosConfig
 			.get(`cubits/${this.safe_uuid(uuid)}`)
 			.then((response: { data: any }) => response.data)
-			.catch((e: any) => e);
 	}
 }
 
