@@ -10,6 +10,7 @@ export interface gamemodeSvas {
 	customModelData: number;
 	unbreakable: true;
 	leatherColor: any;
+	circulation: string
 }
 
 export interface userSva {
