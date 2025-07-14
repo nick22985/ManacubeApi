@@ -1,6 +1,6 @@
 {
 	"name": "manacube",
-	"version": "1.2.8",
+	"version": "1.2.9",
 	"description": "A typescript npm packages to interact with the mana api",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
