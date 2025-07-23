@@ -54,7 +54,7 @@
 	"author": "nick22985",
 	"license": "MIT",
 	"dependencies": {
-		"axios": "^1.10.0",
+		"axios": "^1.11.0",
 		"debug": "^4.4.1",
 		"manacube": "^1.2.8",
 		"qs": "^6.14.0"
