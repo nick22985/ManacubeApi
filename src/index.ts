@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import debug from 'debug';
+import { SocksProxyAgent } from 'socks-proxy-agent';
 import {
 	economyVolumeHistory,
 	faction,
@@ -506,4 +507,3 @@ class ManaCubeApi {
 }
 
 export { ManaCubeApi };
-
