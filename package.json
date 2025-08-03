@@ -1,6 +1,6 @@
 {
 	"name": "manacube",
-	"version": "1.2.13",
+	"version": "1.2.14",
 	"description": "A typescript npm packages to interact with the mana api",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
@@ -52,7 +52,7 @@
 		"debug": "^4.4.1",
 		"qs": "^6.14.0",
 		"socks-proxy-agent": "^8.0.5",
-		"zod": "^4.0.14"
+		"zod": "^3.23.8"
 	},
 	"devDependencies": {
 		"@types/debug": "^4.1.12",

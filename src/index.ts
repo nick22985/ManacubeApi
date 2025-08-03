@@ -606,47 +606,4 @@ class ManaCubeApi {
 export { ManaCubeApi };
 
 // Export all schemas and types for external use
-export {
-	// Schemas
-	gamemodeSvasSchema,
-	userSvaSchema,
-	svaSalesDataSchema,
-	playerStatisticsSchema,
-	svaCirculationDataSchema,
-	uuidNameSchema,
-	playerStatsSchema,
-	shopItemSchema,
-	economyVolumeHistorySchema,
-	guildPlayerSchema,
-	guildSchema,
-	friendSchema,
-	factionSchema,
-	// Input validation schemas
-	uuidInputSchema,
-	gamemodeInputSchema,
-	svaInputSchema,
-	gameInputSchema,
-	pageInputSchema,
-	totalInputSchema,
-	seasonInputSchema,
-	placeholderInputSchema,
-	baseUrlInputSchema,
-	booleanInputSchema,
-} from './types/default';
-
-// Export types for external use
-export type {
-	gamemodeSvas,
-	userSva,
-	svaSalesData,
-	playerStatistics,
-	svaCirculationData,
-	uuidName,
-	playerStats,
-	shopItem,
-	economyVolumeHistory,
-	guildPlayer,
-	guild,
-	friend,
-	faction,
-} from './types/default';
+export * from './types/default';
