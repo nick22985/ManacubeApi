@@ -1,23 +1,23 @@
 {
 	"name": "manacube",
-	"version": "1.2.17",
+	"version": "1.2.18",
 	"description": "A typescript npm packages to interact with the mana api",
-	"main": "lib/index.js",
-	"module": "lib/index.js",
-	"types": "lib/index.d.ts",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"type": "module",
 	"exports": {
 		".": {
-			"import": "./lib/index.js",
-			"require": "./lib/index.cjs",
-			"types": "./lib/index.d.ts"
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
 		}
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"files": [
-		"lib/**/*"
+		"dist/**/*"
 	],
 	"keywords": [
 		"mana",
@@ -39,10 +39,7 @@
 	},
 	"scripts": {
 		"start": "nodemon --exec ts-node src/index.ts",
-		"build": "npm run build:esm && npm run build:cjs && npm run build:fix",
-		"build:esm": "tsc",
-		"build:cjs": "tsc -p tsconfig.cjs.json",
-		"build:fix": "mv lib-cjs/index.js lib/index.cjs && mv lib-cjs/index.d.ts lib/index.d.cts && rm -rf lib/types && cp -r lib-cjs/types lib/ && rm -rf lib-cjs",
+		"build": "tsup",
 		"test": "jest"
 	},
 	"author": "nick22985",
@@ -63,6 +60,7 @@
 		"jest": "^30.0.5",
 		"nodemon": "^3.1.10",
 		"ts-node": "^10.9.2",
+		"tsup": "^8.5.0",
 		"typescript": "^5.9.2"
 	}
 }

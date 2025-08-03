@@ -1,4 +1,4 @@
-const manacubeApi = require('../lib/index.cjs');
+const manacubeApi = require('../dist/index.cjs');
 const MockAdapter = require('axios-mock-adapter');
 
 let uuid = 'f91c3347-4be2-48f2-be73-9a4323f08497';

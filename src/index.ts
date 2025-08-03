@@ -35,7 +35,7 @@ import {
 	userSvaSchema,
 	uuidName,
 	uuidNameSchema,
-} from './types/default.js';
+} from './types/default';
 
 interface ServerRateLimitState {
 	serverRateLimitHit: boolean;
