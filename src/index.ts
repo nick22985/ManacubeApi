@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, CreateAxiosDefaults } from 'axios';
 import debug from 'debug';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { z } from 'zod';
@@ -14,14 +14,18 @@ import {
 	gamemodeInputSchema,
 	gameInputSchema,
 	guild,
+	guildPlayer,
+	guildPlayerSchema,
 	guildSchema,
 	pageInputSchema,
 	placeholderInputSchema,
+	playerStatistics,
 	playerStats,
 	playerStatsSchema,
 	seasonInputSchema,
 	shopItem,
 	shopItemSchema,
+	svaCirculationData,
 	svaSalesData,
 	svaSalesDataSchema,
 	svaInputSchema,
@@ -66,21 +70,35 @@ class ManaCubeApi {
 		baseUrl = 'https://api.manacube.com/api/',
 		disableSafeUUIDCheck = false,
 		enableQueueing = false,
-		socksProxyUrl?: string,
+		axiosOptionsOrSocksProxyUrl?: CreateAxiosDefaults | string,
 	) {
-		const axiosOptions: any = {
+		const defaultAxiosOptions: CreateAxiosDefaults = {
 			baseURL: baseUrl,
 		};
 
-		if (socksProxyUrl) {
-			const agent = new SocksProxyAgent(socksProxyUrl);
-			axiosOptions.httpAgent = agent;
-			axiosOptions.httpsAgent = agent;
+		let finalAxiosOptions: CreateAxiosDefaults;
+
+		// Handle backwards compatibility with socksProxyUrl string parameter
+		if (typeof axiosOptionsOrSocksProxyUrl === 'string') {
+			const agent = new SocksProxyAgent(axiosOptionsOrSocksProxyUrl);
+			finalAxiosOptions = {
+				...defaultAxiosOptions,
+				httpAgent: agent,
+				httpsAgent: agent,
+			};
+		} else if (axiosOptionsOrSocksProxyUrl) {
+			// Merge provided axios options with defaults
+			finalAxiosOptions = {
+				...defaultAxiosOptions,
+				...axiosOptionsOrSocksProxyUrl,
+				// Ensure baseURL is preserved unless explicitly overridden
+				baseURL: axiosOptionsOrSocksProxyUrl.baseURL || baseUrl,
+			};
+		} else {
+			finalAxiosOptions = defaultAxiosOptions;
 		}
 
-		this.axiosConfig = axios.create({
-			baseURL: baseUrl,
-		});
+		this.axiosConfig = axios.create(finalAxiosOptions);
 		this.disableSafeUUIDCheck = disableSafeUUIDCheck;
 		this.enableQueueing = enableQueueing;
 		this.requestQueue = [];
@@ -96,7 +114,11 @@ class ManaCubeApi {
 		this.debugQueue = debug('manacube:queue');
 		this.debugRequest = debug('manacube:request');
 
-		this.debug('ManaCubeApi initialized with baseUrl: %s, queueing: %s', baseUrl, enableQueueing);
+		this.debug('ManaCubeApi initialized with baseUrl: %s, queueing: %s, customAxiosOptions: %s', 
+			baseUrl, 
+			enableQueueing, 
+			axiosOptionsOrSocksProxyUrl ? (typeof axiosOptionsOrSocksProxyUrl === 'string' ? 'socks proxy' : 'custom options') : 'none'
+		);
 	}
 
 	private safe_uuid(uuid: string) {
@@ -608,18 +630,23 @@ export {
 	totalInputSchema,
 	seasonInputSchema,
 	placeholderInputSchema,
-	// Types (for backwards compatibility)
-	type gamemodeSvas,
-	type userSva,
-	type svaSalesData,
-	type playerStatistics,
-	type svaCirculationData,
-	type uuidName,
-	type playerStats,
-	type shopItem,
-	type economyVolumeHistory,
-	type guildPlayer,
-	type guild,
-	type friend,
-	type faction,
+	baseUrlInputSchema,
+	booleanInputSchema,
+} from './types/default';
+
+// Export types for external use
+export type {
+	gamemodeSvas,
+	userSva,
+	svaSalesData,
+	playerStatistics,
+	svaCirculationData,
+	uuidName,
+	playerStats,
+	shopItem,
+	economyVolumeHistory,
+	guildPlayer,
+	guild,
+	friend,
+	faction,
 } from './types/default';

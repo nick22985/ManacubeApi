@@ -10,6 +10,10 @@ export const totalInputSchema = z.number().int().positive('Total must be a posit
 export const seasonInputSchema = z.number().int().positive('Season must be a positive integer');
 export const placeholderInputSchema = z.string().min(1, 'Placeholder is required');
 
+// Constructor validation schemas
+export const baseUrlInputSchema = z.string().regex(/^https?:\/\/.+/, 'Base URL must be a valid HTTP/HTTPS URL');
+export const booleanInputSchema = z.boolean();
+
 export const gamemodeSvasSchema = z.object({
 	itemType: z.string(),
 	slot: z.string(),

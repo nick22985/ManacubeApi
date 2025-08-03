@@ -294,6 +294,8 @@ test('schema exports are available', () => {
 	expect(manacubeApi.gamemodeSvasSchema).toBeDefined();
 	expect(manacubeApi.userSvaSchema).toBeDefined();
 	expect(manacubeApi.guildSchema).toBeDefined();
+	expect(manacubeApi.baseUrlInputSchema).toBeDefined();
+	expect(manacubeApi.booleanInputSchema).toBeDefined();
 	
 	// Test that we can validate data with exported schemas
 	const validUuid = 'f91c3347-4be2-48f2-be73-9a4323f08497';
@@ -301,5 +303,65 @@ test('schema exports are available', () => {
 	
 	const invalidUuid = 'invalid-uuid';
 	expect(() => manacubeApi.uuidInputSchema.parse(invalidUuid)).toThrow();
+});
+
+test('constructor with custom axios options', () => {
+	const customOptions = {
+		timeout: 5000,
+		headers: {
+			'User-Agent': 'Custom-Agent'
+		}
+	};
+	
+	const client = new manacubeApi.ManaCubeApi(
+		'https://api.manacube.com/api/',
+		false,
+		false,
+		customOptions
+	);
+	
+	expect(client.axiosConfig.defaults.timeout).toBe(5000);
+	expect(client.axiosConfig.defaults.headers['User-Agent']).toBe('Custom-Agent');
+	expect(client.axiosConfig.defaults.baseURL).toBe('https://api.manacube.com/api/');
+});
+
+test('constructor with custom axios options overriding baseURL', () => {
+	const customOptions = {
+		baseURL: 'https://custom.api.com/',
+		timeout: 3000
+	};
+	
+	const client = new manacubeApi.ManaCubeApi(
+		'https://api.manacube.com/api/',
+		false,
+		false,
+		customOptions
+	);
+	
+	expect(client.axiosConfig.defaults.baseURL).toBe('https://custom.api.com/');
+	expect(client.axiosConfig.defaults.timeout).toBe(3000);
+});
+
+test('constructor backwards compatibility with socks proxy string', () => {
+	const socksProxyUrl = 'socks5://127.0.0.1:1080';
+	
+	const client = new manacubeApi.ManaCubeApi(
+		'https://api.manacube.com/api/',
+		false,
+		false,
+		socksProxyUrl
+	);
+	
+	expect(client.axiosConfig.defaults.baseURL).toBe('https://api.manacube.com/api/');
+	expect(client.axiosConfig.defaults.httpAgent).toBeDefined();
+	expect(client.axiosConfig.defaults.httpsAgent).toBeDefined();
+});
+
+test('constructor with no custom options', () => {
+	const client = new manacubeApi.ManaCubeApi();
+	
+	expect(client.axiosConfig.defaults.baseURL).toBe('https://api.manacube.com/api/');
+	expect(client.disableSafeUUIDCheck).toBe(false);
+	expect(client.getQueueing()).toBe(false);
 });
 
