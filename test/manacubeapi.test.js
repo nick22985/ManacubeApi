@@ -342,21 +342,6 @@ test('constructor with custom axios options overriding baseURL', () => {
 	expect(client.axiosConfig.defaults.timeout).toBe(3000);
 });
 
-test('constructor backwards compatibility with socks proxy string', () => {
-	const socksProxyUrl = 'socks5://127.0.0.1:1080';
-	
-	const client = new manacubeApi.ManaCubeApi(
-		'https://api.manacube.com/api/',
-		false,
-		false,
-		socksProxyUrl
-	);
-	
-	expect(client.axiosConfig.defaults.baseURL).toBe('https://api.manacube.com/api/');
-	expect(client.axiosConfig.defaults.httpAgent).toBeDefined();
-	expect(client.axiosConfig.defaults.httpsAgent).toBeDefined();
-});
-
 test('constructor with no custom options', () => {
 	const client = new manacubeApi.ManaCubeApi();
 	

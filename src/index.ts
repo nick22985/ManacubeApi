@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, CreateAxiosDefaults } from 'axios';
 import debug from 'debug';
-import { SocksProxyAgent } from 'socks-proxy-agent';
 import { z } from 'zod';
 import {
 	economyVolumeHistory,
@@ -70,33 +69,19 @@ class ManaCubeApi {
 		baseUrl = 'https://api.manacube.com/api/',
 		disableSafeUUIDCheck = false,
 		enableQueueing = false,
-		axiosOptionsOrSocksProxyUrl?: CreateAxiosDefaults | string,
+		axiosOptions?: CreateAxiosDefaults,
 	) {
 		const defaultAxiosOptions: CreateAxiosDefaults = {
 			baseURL: baseUrl,
 		};
 
-		let finalAxiosOptions: CreateAxiosDefaults;
-
-		// Handle backwards compatibility with socksProxyUrl string parameter
-		if (typeof axiosOptionsOrSocksProxyUrl === 'string') {
-			const agent = new SocksProxyAgent(axiosOptionsOrSocksProxyUrl);
-			finalAxiosOptions = {
-				...defaultAxiosOptions,
-				httpAgent: agent,
-				httpsAgent: agent,
-			};
-		} else if (axiosOptionsOrSocksProxyUrl) {
-			// Merge provided axios options with defaults
-			finalAxiosOptions = {
-				...defaultAxiosOptions,
-				...axiosOptionsOrSocksProxyUrl,
-				// Ensure baseURL is preserved unless explicitly overridden
-				baseURL: axiosOptionsOrSocksProxyUrl.baseURL || baseUrl,
-			};
-		} else {
-			finalAxiosOptions = defaultAxiosOptions;
-		}
+		const finalAxiosOptions: CreateAxiosDefaults = axiosOptions
+			? {
+					...defaultAxiosOptions,
+					...axiosOptions,
+					baseURL: axiosOptions.baseURL || baseUrl,
+				}
+			: defaultAxiosOptions;
 
 		this.axiosConfig = axios.create(finalAxiosOptions);
 		this.disableSafeUUIDCheck = disableSafeUUIDCheck;
@@ -114,10 +99,11 @@ class ManaCubeApi {
 		this.debugQueue = debug('manacube:queue');
 		this.debugRequest = debug('manacube:request');
 
-		this.debug('ManaCubeApi initialized with baseUrl: %s, queueing: %s, customAxiosOptions: %s', 
-			baseUrl, 
-			enableQueueing, 
-			axiosOptionsOrSocksProxyUrl ? (typeof axiosOptionsOrSocksProxyUrl === 'string' ? 'socks proxy' : 'custom options') : 'none'
+		this.debug(
+			'ManaCubeApi initialized with baseUrl: %s, queueing: %s, customAxiosOptions: %s',
+			baseUrl,
+			enableQueueing,
+			axiosOptions ? 'provided' : 'none',
 		);
 	}
 
