@@ -1,17 +1,36 @@
 import axios, { AxiosInstance } from 'axios';
 import debug from 'debug';
 import { SocksProxyAgent } from 'socks-proxy-agent';
+import { z } from 'zod';
 import {
 	economyVolumeHistory,
+	economyVolumeHistorySchema,
 	faction,
+	factionSchema,
 	friend,
+	friendSchema,
 	gamemodeSvas,
+	gamemodeSvasSchema,
+	gamemodeInputSchema,
+	gameInputSchema,
 	guild,
+	guildSchema,
+	pageInputSchema,
+	placeholderInputSchema,
 	playerStats,
+	playerStatsSchema,
+	seasonInputSchema,
 	shopItem,
+	shopItemSchema,
 	svaSalesData,
+	svaSalesDataSchema,
+	svaInputSchema,
+	totalInputSchema,
+	uuidInputSchema,
 	userSva,
+	userSvaSchema,
 	uuidName,
+	uuidNameSchema,
 } from './types/default';
 
 interface ServerRateLimitState {
@@ -182,9 +201,30 @@ class ManaCubeApi {
 		}, totalWaitTime + 1000);
 	}
 
-	private clearAllProgressIntervals(): void {
-		this.progressIntervals.forEach((interval) => clearInterval(interval));
-		this.progressIntervals.clear();
+	private validateInput<T>(schema: z.ZodSchema<T>, data: unknown): T {
+		try {
+			return schema.parse(data);
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				const errorMessage = error.issues
+					.map((e: any) => `${e.path.join('.')}: ${e.message}`)
+					.join(', ');
+				throw new Error(`Validation error: ${errorMessage}`);
+			}
+			throw error;
+		}
+	}
+
+	private validateResponse<T>(schema: z.ZodSchema<T>, data: unknown): T {
+		try {
+			return schema.parse(data);
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				console.log('Error Response validation failed: %O', error.issues);
+				return data as T;
+			}
+			return data as T;
+		}
 	}
 
 	private isRateLimitError(error: any): { isRateLimit: boolean; retryAfter?: number } {
@@ -389,14 +429,18 @@ class ManaCubeApi {
 	}
 
 	getAllGamemodeSvas(gamemode: string, options?: RequestOptions): Promise<Array<gamemodeSvas>> {
-		if (!gamemode) throw new Error('gamemode is required');
-		return this.makeRequest(`svas/${gamemode}`, options);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		return this.makeRequest(`svas/${gamemode}`, options).then((data) =>
+			this.validateResponse(z.array(gamemodeSvasSchema), data),
+		);
 	}
 
 	getUserSvas(uuid: string, gamemode: string, options?: RequestOptions): Promise<Array<userSva>> {
-		if (!uuid) throw new Error('uuid is required');
-		if (!gamemode) throw new Error('gamemode is required');
-		return this.makeRequest(`svas/${gamemode}/${this.safe_uuid(uuid)}`, options);
+		this.validateInput(uuidInputSchema, uuid);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		return this.makeRequest(`svas/${gamemode}/${this.safe_uuid(uuid)}`, options).then((data) =>
+			this.validateResponse(z.array(userSvaSchema), data),
+		);
 	}
 
 	getSvaSalesData(
@@ -404,15 +448,19 @@ class ManaCubeApi {
 		sva: string,
 		options?: RequestOptions,
 	): Promise<Array<svaSalesData>> {
-		if (!gamemode) throw new Error('gamemode is required');
-		if (!sva) throw new Error('sva is required');
-		return this.makeRequest(`svas/sales/${gamemode}/${sva}`, options);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		this.validateInput(svaInputSchema, sva);
+		return this.makeRequest(`svas/sales/${gamemode}/${sva}`, options).then((data) =>
+			this.validateResponse(z.array(svaSalesDataSchema), data),
+		);
 	}
 
 	getSvaCirculationData(gamemode: string, sva: string, options?: RequestOptions): Promise<number> {
-		if (!gamemode) throw new Error('gamemode is required');
-		if (!sva) throw new Error('sva is required');
-		return this.makeRequest(`svas/circulation/${gamemode}/${sva}`, options);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		this.validateInput(svaInputSchema, sva);
+		return this.makeRequest(`svas/circulation/${gamemode}/${sva}`, options).then((data) =>
+			this.validateResponse(z.number(), data),
+		);
 	}
 
 	getPlayerStatisticsForGamemode(
@@ -420,37 +468,50 @@ class ManaCubeApi {
 		game: string,
 		options?: RequestOptions,
 	): Promise<any> {
-		if (!uuid) throw new Error('uuid is required');
-		if (!game) throw new Error('game is required');
+		this.validateInput(uuidInputSchema, uuid);
+		this.validateInput(gameInputSchema, game);
 		return this.makeRequest(`statistics/${this.safe_uuid(uuid)}/${game}`, options);
 	}
 
 	getListOfAllGamemodes(options?: RequestOptions): Promise<Array<string>> {
-		return this.makeRequest(`statistics/gamemodes`, options);
+		return this.makeRequest(`statistics/gamemodes`, options).then((data) =>
+			this.validateResponse(z.array(z.string()), data),
+		);
 	}
 
 	getAllPatrons(options?: RequestOptions): Promise<Array<string>> {
-		return this.makeRequest(`patrons/uuids`, options);
+		return this.makeRequest(`patrons/uuids`, options).then((data) =>
+			this.validateResponse(z.array(z.string()), data),
+		);
 	}
 
 	getPatronPlus(options?: RequestOptions): Promise<Array<uuidName>> {
-		return this.makeRequest(`patrons/patronsplus`, options);
+		return this.makeRequest(`patrons/patronsplus`, options).then((data) =>
+			this.validateResponse(z.array(uuidNameSchema), data),
+		);
 	}
 
 	getPatrons(options?: RequestOptions): Promise<Array<uuidName>> {
-		return this.makeRequest(`patrons/patrons`, options);
+		return this.makeRequest(`patrons/patrons`, options).then((data) =>
+			this.validateResponse(z.array(uuidNameSchema), data),
+		);
 	}
 
 	async getPlayerLevels(uuid: string, options?: RequestOptions): Promise<playerStats> {
-		if (!uuid) throw new Error('uuid is required');
-		return this.makeRequest(`manalevel/${this.safe_uuid(uuid)}`, options);
+		this.validateInput(uuidInputSchema, uuid);
+		return this.makeRequest(`manalevel/${this.safe_uuid(uuid)}`, options).then((data) =>
+			this.validateResponse(playerStatsSchema, data),
+		);
 	}
 
 	async economyCurrentSellPrices(
 		gamemode: string,
 		options?: RequestOptions,
 	): Promise<Array<shopItem>> {
-		return this.makeRequest(`manaeconomy/prices/${gamemode}`, options);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		return this.makeRequest(`manaeconomy/prices/${gamemode}`, options).then((data) =>
+			this.validateResponse(z.array(shopItemSchema), data),
+		);
 	}
 
 	async economyVolumeHistory(
@@ -458,9 +519,11 @@ class ManaCubeApi {
 		page: number,
 		options?: RequestOptions,
 	): Promise<Array<economyVolumeHistory>> {
-		if (!gamemode) throw new Error('gamemode is required');
-		if (!page) throw new Error('page is required');
-		return this.makeRequest(`manaeconomy/history/volume/${gamemode}/${page}`, options);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		this.validateInput(pageInputSchema, page);
+		return this.makeRequest(`manaeconomy/history/volume/${gamemode}/${page}`, options).then((data) =>
+			this.validateResponse(z.array(economyVolumeHistorySchema), data),
+		);
 	}
 
 	async economyPriceHistory(
@@ -468,42 +531,95 @@ class ManaCubeApi {
 		page: number,
 		options?: RequestOptions,
 	): Promise<Array<shopItem>> {
-		if (!gamemode) throw new Error('gamemode is required');
-		if (!page) throw new Error('page is required');
-		return this.makeRequest(`manaeconomy/history/prices/${gamemode}/${page}`, options);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		this.validateInput(pageInputSchema, page);
+		return this.makeRequest(`manaeconomy/history/prices/${gamemode}/${page}`, options).then((data) =>
+			this.validateResponse(z.array(shopItemSchema), data),
+		);
 	}
 
 	async getTopGuilds(total: number, options?: RequestOptions): Promise<Array<guild>> {
-		if (!total) throw new Error('total is required');
-		return this.makeRequest(`guilds/top/${total}`, options);
+		this.validateInput(totalInputSchema, total);
+		return this.makeRequest(`guilds/top/${total}`, options).then((data) =>
+			this.validateResponse(z.array(guildSchema), data),
+		);
 	}
 
 	async getPlayerGuild(uuid: string, options?: RequestOptions): Promise<guild> {
-		if (!uuid) throw new Error('uuid is required');
-		return this.makeRequest(`guilds/player/${this.safe_uuid(uuid)}`, options);
+		this.validateInput(uuidInputSchema, uuid);
+		return this.makeRequest(`guilds/player/${this.safe_uuid(uuid)}`, options).then((data) =>
+			this.validateResponse(guildSchema, data),
+		);
 	}
 
 	async getUserFriends(uuid: string, options?: RequestOptions): Promise<Array<friend>> {
-		if (!uuid) throw new Error('uuid is required');
-		return this.makeRequest(`friends/${this.safe_uuid(uuid)}`, options);
+		this.validateInput(uuidInputSchema, uuid);
+		return this.makeRequest(`friends/${this.safe_uuid(uuid)}`, options).then((data) =>
+			this.validateResponse(z.array(friendSchema), data),
+		);
 	}
 
 	async getGracePlaceholder(placeholder: string, options?: RequestOptions): Promise<string> {
-		if (!placeholder) {
-			throw new Error('placeholder is required');
-		}
-		return this.makeRequest(`factions/placeholder/${placeholder}`, options);
+		this.validateInput(placeholderInputSchema, placeholder);
+		return this.makeRequest(`factions/placeholder/${placeholder}`, options).then((data) =>
+			this.validateResponse(z.string(), data),
+		);
 	}
 
 	async getFactionsSeasonPayouts(season: number, options?: RequestOptions): Promise<Array<faction>> {
-		if (!season) throw new Error('season is required');
-		return this.makeRequest(`factions/payouts/${season}`, options);
+		this.validateInput(seasonInputSchema, season);
+		return this.makeRequest(`factions/payouts/${season}`, options).then((data) =>
+			this.validateResponse(z.array(factionSchema), data),
+		);
 	}
 
 	async getPlayersCubitBalance(uuid: string, options?: RequestOptions): Promise<number> {
-		if (!uuid) throw new Error('uuid is required');
-		return this.makeRequest(`cubits/${this.safe_uuid(uuid)}`, options);
+		this.validateInput(uuidInputSchema, uuid);
+		return this.makeRequest(`cubits/${this.safe_uuid(uuid)}`, options).then((data) =>
+			this.validateResponse(z.number(), data),
+		);
 	}
 }
 
 export { ManaCubeApi };
+
+// Export all schemas and types for external use
+export {
+	// Schemas
+	gamemodeSvasSchema,
+	userSvaSchema,
+	svaSalesDataSchema,
+	playerStatisticsSchema,
+	svaCirculationDataSchema,
+	uuidNameSchema,
+	playerStatsSchema,
+	shopItemSchema,
+	economyVolumeHistorySchema,
+	guildPlayerSchema,
+	guildSchema,
+	friendSchema,
+	factionSchema,
+	// Input validation schemas
+	uuidInputSchema,
+	gamemodeInputSchema,
+	svaInputSchema,
+	gameInputSchema,
+	pageInputSchema,
+	totalInputSchema,
+	seasonInputSchema,
+	placeholderInputSchema,
+	// Types (for backwards compatibility)
+	type gamemodeSvas,
+	type userSva,
+	type svaSalesData,
+	type playerStatistics,
+	type svaCirculationData,
+	type uuidName,
+	type playerStats,
+	type shopItem,
+	type economyVolumeHistory,
+	type guildPlayer,
+	type guild,
+	type friend,
+	type faction,
+} from './types/default';

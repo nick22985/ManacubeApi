@@ -246,3 +246,60 @@ test('parallel execution performance', async () => {
 	testMock.restore();
 });
 
+// Validation tests
+test('input validation - invalid UUID', async () => {
+	try {
+		await manacubeClient.getUserSvas('invalid-uuid', 'olympus');
+		fail('Expected validation error to be thrown');
+	} catch (error) {
+		expect(error.message).toContain('Validation error');
+		expect(error.message).toContain('Invalid UUID format');
+	}
+});
+
+test('input validation - empty gamemode', async () => {
+	try {
+		await manacubeClient.getAllGamemodeSvas('');
+		fail('Expected validation error to be thrown');
+	} catch (error) {
+		expect(error.message).toContain('Validation error');
+		expect(error.message).toContain('Gamemode is required');
+	}
+});
+
+test('input validation - invalid page number', async () => {
+	try {
+		await manacubeClient.economyVolumeHistory('olympus', -1);
+		fail('Expected validation error to be thrown');
+	} catch (error) {
+		expect(error.message).toContain('Validation error');
+		expect(error.message).toContain('Page must be a positive integer');
+	}
+});
+
+test('input validation - invalid total number', async () => {
+	try {
+		await manacubeClient.getTopGuilds(0);
+		fail('Expected validation error to be thrown');
+	} catch (error) {
+		expect(error.message).toContain('Validation error');
+		expect(error.message).toContain('Total must be a positive integer');
+	}
+});
+
+test('schema exports are available', () => {
+	// Test that schemas are exported and can be used
+	expect(manacubeApi.uuidInputSchema).toBeDefined();
+	expect(manacubeApi.gamemodeInputSchema).toBeDefined();
+	expect(manacubeApi.gamemodeSvasSchema).toBeDefined();
+	expect(manacubeApi.userSvaSchema).toBeDefined();
+	expect(manacubeApi.guildSchema).toBeDefined();
+	
+	// Test that we can validate data with exported schemas
+	const validUuid = 'f91c3347-4be2-48f2-be73-9a4323f08497';
+	expect(() => manacubeApi.uuidInputSchema.parse(validUuid)).not.toThrow();
+	
+	const invalidUuid = 'invalid-uuid';
+	expect(() => manacubeApi.uuidInputSchema.parse(invalidUuid)).toThrow();
+});
+
