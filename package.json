@@ -49,7 +49,7 @@
 	"author": "nick22985",
 	"license": "MIT",
 	"dependencies": {
-		"axios": "^1.11.0",
+		"axios": "^1.13.2",
 		"debug": "^4.4.1",
 		"qs": "^6.14.0",
 		"zod": "^4.0.14"
