@@ -97,8 +97,8 @@ export const guildSchema = z.object({
 	createDate: z.string(),
 	rank: z.number(),
 	level: z.number(),
-	description: z.string(),
-	homeServer: z.string(),
+	description: z.string().nullable(),
+	homeServer: z.string().nullable(),
 	members: z.array(guildPlayerSchema),
 });
 

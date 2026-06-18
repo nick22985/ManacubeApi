@@ -49,21 +49,21 @@
 	"author": "nick22985",
 	"license": "MIT",
 	"dependencies": {
-		"axios": "^1.11.0",
-		"debug": "^4.4.1",
-		"qs": "^6.14.0",
-		"zod": "^4.0.14"
+		"axios": "^1.18.0",
+		"debug": "^4.4.3",
+		"qs": "^6.15.2",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
-		"@types/debug": "^4.1.12",
+		"@types/debug": "^4.1.13",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^24.1.0",
+		"@types/node": "^25.9.3",
 		"axios-mock-adapter": "^2.1.0",
-		"dotenv": "^17.2.1",
-		"jest": "^30.0.5",
-		"nodemon": "^3.1.10",
+		"dotenv": "^17.4.2",
+		"jest": "^30.4.2",
+		"nodemon": "^3.1.14",
 		"ts-node": "^10.9.2",
-		"tsup": "^8.5.0",
-		"typescript": "^5.9.2"
+		"tsup": "^8.5.1",
+		"typescript": "^6.0.3"
 	}
 }

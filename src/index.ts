@@ -63,7 +63,7 @@ class ManaCubeApi {
 	private debugRateLimit: debug.Debugger;
 	private debugQueue: debug.Debugger;
 	private debugRequest: debug.Debugger;
-	private progressIntervals: Set<NodeJS.Timeout>;
+	private progressIntervals: Set<ReturnType<typeof setInterval>>;
 
 	constructor(
 		baseUrl = 'https://api.manacube.com/api/',
