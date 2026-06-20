@@ -235,6 +235,11 @@ class ManaCubeApi {
 		}
 	}
 
+	private validateNullableResponse<T>(schema: z.ZodSchema<T>, data: unknown): T | null {
+		if (data === null || data === undefined || data === '') return null;
+		return this.validateResponse(schema, data);
+	}
+
 	private isRateLimitError(error: any): { isRateLimit: boolean; retryAfter?: number } {
 		if (!error.response) return { isRateLimit: false };
 
@@ -505,10 +510,10 @@ class ManaCubeApi {
 		);
 	}
 
-	async getPlayerLevels(uuid: string, options?: RequestOptions): Promise<playerStats> {
+	async getPlayerLevels(uuid: string, options?: RequestOptions): Promise<playerStats | null> {
 		this.validateInput(uuidInputSchema, uuid);
 		return this.makeRequest(`manalevel/${this.safe_uuid(uuid)}`, options).then((data) =>
-			this.validateResponse(playerStatsSchema, data),
+			this.validateNullableResponse(playerStatsSchema, data),
 		);
 	}
 
@@ -553,10 +558,10 @@ class ManaCubeApi {
 		);
 	}
 
-	async getPlayerGuild(uuid: string, options?: RequestOptions): Promise<guild> {
+	async getPlayerGuild(uuid: string, options?: RequestOptions): Promise<guild | null> {
 		this.validateInput(uuidInputSchema, uuid);
 		return this.makeRequest(`guilds/player/${this.safe_uuid(uuid)}`, options).then((data) =>
-			this.validateResponse(guildSchema, data),
+			this.validateNullableResponse(guildSchema, data),
 		);
 	}
 
