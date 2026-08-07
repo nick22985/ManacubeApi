@@ -350,3 +350,118 @@ test('constructor with no custom options', () => {
 	expect(client.getQueueing()).toBe(false);
 });
 
+
+// Auction endpoints
+const mockAuctionItem = {
+	id: 22446,
+	creationTime: 1785792838680,
+	sellerUUID: '865fc402-335b-4cdc-ae5d-c9afbf47714b',
+	item: 'DIAMOND_SWORD 1 custommodeldata:100023 name:&c&lMECHA_SWORD sharpness:7',
+	auctionType: 'SELL',
+	economyType: 'MANA_CUBITS',
+	adminAuction: false,
+	price: 0.5,
+	topBidderUUID: null,
+	winnerUUID: null,
+	status: 'ACTIVE',
+	expiryTime: 1786138438680,
+};
+
+const mockAuctionPage = {
+	lastUpdated: 1786106093775,
+	auctions: [mockAuctionItem],
+	full: false,
+	finalized: false,
+};
+
+test('getActiveAuctions', async () => {
+	mock.onGet('auctions/active/survival/1').reply(200, mockAuctionPage);
+
+	const page = await manacubeClient.getActiveAuctions('survival', 1);
+
+	expect(page.auctions).toHaveLength(1);
+	expect(page.auctions[0].id).toBe(22446);
+	expect(page.auctions[0].auctionType).toBe('SELL');
+	expect(page.full).toBe(false);
+});
+
+test('getRecentlyEndedAuctions', async () => {
+	const endedItem = { ...mockAuctionItem, status: 'COLLECTED', winnerUUID: 'ce5c0fec-0d95-4ff8-927a-37e596841211' };
+	mock.onGet('auctions/ended/survival/1').reply(200, { ...mockAuctionPage, auctions: [endedItem] });
+
+	const page = await manacubeClient.getRecentlyEndedAuctions('survival', 1);
+
+	expect(page.auctions[0].status).toBe('COLLECTED');
+	expect(page.auctions[0].winnerUUID).toBe('ce5c0fec-0d95-4ff8-927a-37e596841211');
+});
+
+test('getPlayerAuctions', async () => {
+	mock.onGet(`auctions/player/${uuid}/survival/1`).reply(200, mockAuctionPage);
+
+	const page = await manacubeClient.getPlayerAuctions(uuid, 'survival', 1);
+
+	expect(page.auctions).toHaveLength(1);
+});
+
+// Consistent with every other UUID-taking method: input validation runs before safe_uuid, so an
+// undashed UUID never reaches the request. The API 400s on those anyway.
+test('getPlayerAuctions rejects an undashed UUID', async () => {
+	try {
+		await manacubeClient.getPlayerAuctions('f91c33474be248f2be739a4323f08497', 'survival', 1);
+		fail('Expected validation error to be thrown');
+	} catch (error) {
+		expect(error.message).toContain('Invalid UUID format');
+	}
+});
+
+// The API answers 200 with a zero-length body for pages past the end, which axios surfaces as ''.
+test('auction endpoints normalise an empty body into an empty page', async () => {
+	mock.onGet('auctions/active/survival/2').reply(200, '');
+
+	const page = await manacubeClient.getActiveAuctions('survival', 2);
+
+	expect(page.auctions).toEqual([]);
+	expect(page.full).toBe(false);
+	expect(page.lastUpdated).toBe(0);
+});
+
+test('getAllActiveAuctions follows pages while they are full', async () => {
+	mock.onGet('auctions/active/survival/1').reply(200, { ...mockAuctionPage, full: true });
+	mock.onGet('auctions/active/survival/2').reply(200, {
+		...mockAuctionPage,
+		auctions: [{ ...mockAuctionItem, id: 22447 }],
+		full: false,
+	});
+
+	const auctions = await manacubeClient.getAllActiveAuctions('survival');
+
+	expect(auctions).toHaveLength(2);
+	expect(auctions.map((a) => a.id)).toEqual([22446, 22447]);
+});
+
+test('getAllActiveAuctions stops at maxPages', async () => {
+	mock.onGet(/auctions\/active\/survival\/\d+/).reply(200, { ...mockAuctionPage, full: true });
+
+	const auctions = await manacubeClient.getAllActiveAuctions('survival', 3);
+
+	expect(auctions).toHaveLength(3);
+});
+
+test('auction input validation - page 0 is rejected', async () => {
+	try {
+		await manacubeClient.getActiveAuctions('survival', 0);
+		fail('Expected validation error to be thrown');
+	} catch (error) {
+		expect(error.message).toContain('Validation error');
+		expect(error.message).toContain('Page must be a positive integer');
+	}
+});
+
+test('auction input validation - invalid UUID', async () => {
+	try {
+		await manacubeClient.getPlayerAuctions('nope', 'survival', 1);
+		fail('Expected validation error to be thrown');
+	} catch (error) {
+		expect(error.message).toContain('Invalid UUID format');
+	}
+});

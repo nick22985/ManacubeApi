@@ -205,6 +205,64 @@ Get Players cubit balance
 getPlayersCubitBalance(uuid)
 ```
 
+### Auctions
+
+All three auction endpoints return an `auctionPage`:
+`{ lastUpdated, auctions: auctionItem[], full, finalized }`.
+
+Pages are **1-indexed** (page `0` is rejected). The API declares `page`/`totalPages`/
+`totalAuctions` but marks them `writeOnly` and never sends them, so there is no page count —
+follow `full` instead: a `full` page means another page may follow.
+
+A page past the end comes back as a `200` with an empty body, which is normalised into an empty
+page (`auctions: []`). The API also returns an empty body *intermittently* for pages that do have
+data, so retry an empty page before treating it as the end of the data.
+
+Get a page of active auctions
+
+```js
+@param gamemode Gamemode to get auctions for
+@param page Page number, starting at 1
+@returns A page of currently active auctions
+
+manacubeClient.getActiveAuctions(gamemode, page)
+```
+
+Get a page of recently ended auctions
+
+```js
+@param gamemode Gamemode to get auctions for
+@param page Page number, starting at 1
+@returns A page of recently ended auctions
+
+manacubeClient.getRecentlyEndedAuctions(gamemode, page)
+```
+
+Note this is a short rolling window of the most recently ended auctions, not an archive — poll it
+regularly if you want history.
+
+Get a page of a player's auctions
+
+```js
+@param uuid UUID of the player
+@param gamemode Gamemode to get auctions for
+@param page Page number, starting at 1
+@returns A page of auctions created by that player, ordered by creation date
+
+manacubeClient.getPlayerAuctions(uuid, gamemode, page)
+```
+
+Collect every page in one call
+
+```js
+@param gamemode Gamemode to get auctions for
+@param maxPages Safety stop, defaults to 50
+@returns Every auction across all pages
+
+manacubeClient.getAllActiveAuctions(gamemode, maxPages)
+manacubeClient.getAllPlayerAuctions(uuid, gamemode, maxPages)
+```
+
 ## :memo: License
 
 This project is under license from MIT. For more details, see the [LICENSE](LICENSE.md) file.

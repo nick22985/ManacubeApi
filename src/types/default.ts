@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 // Input validation schemas
-export const uuidInputSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format');
+export const uuidInputSchema = z
+	.string()
+	.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format');
 export const gamemodeInputSchema = z.string().min(1, 'Gamemode is required');
 export const svaInputSchema = z.string().min(1, 'SVA is required');
 export const gameInputSchema = z.string().min(1, 'Game is required');
@@ -11,7 +13,9 @@ export const seasonInputSchema = z.number().int().positive('Season must be a pos
 export const placeholderInputSchema = z.string().min(1, 'Placeholder is required');
 
 // Constructor validation schemas
-export const baseUrlInputSchema = z.string().regex(/^https?:\/\/.+/, 'Base URL must be a valid HTTP/HTTPS URL');
+export const baseUrlInputSchema = z
+	.string()
+	.regex(/^https?:\/\/.+/, 'Base URL must be a valid HTTP/HTTPS URL');
 export const booleanInputSchema = z.boolean();
 
 export const gamemodeSvasSchema = z.object({
@@ -53,12 +57,16 @@ export const playerStatisticsSchema = z.object({
 export const svaCirculationDataSchema = z.object({});
 
 export const uuidNameSchema = z.object({
-	uuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
+	uuid: z
+		.string()
+		.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
 	name: z.string(),
 });
 
 export const playerStatsSchema = z.object({
-	uuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
+	uuid: z
+		.string()
+		.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
 	totalExp: z.number(),
 	stats: z.array(z.any()),
 });
@@ -84,7 +92,9 @@ export const economyVolumeHistorySchema = z.object({
 });
 
 export const guildPlayerSchema = z.object({
-	uuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
+	uuid: z
+		.string()
+		.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
 	name: z.string(),
 	guildId: z.number(),
 	joinDate: z.string(),
@@ -103,15 +113,54 @@ export const guildSchema = z.object({
 });
 
 export const friendSchema = z.object({
-	uuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
+	uuid: z
+		.string()
+		.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
 	name: z.string(),
+});
+
+export const auctionTypeSchema = z.enum(['SELL', 'BID']);
+
+export const auctionStatusSchema = z.enum([
+	'ACTIVE',
+	'SOLD',
+	'CANCELLED',
+	'EXPIRED',
+	'COLLECTED',
+	'DESTROYED',
+]);
+
+export const auctionItemSchema = z.object({
+	id: z.number(),
+	creationTime: z.number(),
+	sellerUUID: z
+		.string()
+		.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
+	item: z.string(),
+	auctionType: auctionTypeSchema,
+	economyType: z.string(),
+	adminAuction: z.boolean(),
+	price: z.number(),
+	topBidderUUID: z.string().nullable(),
+	winnerUUID: z.string().nullable(),
+	status: auctionStatusSchema,
+	expiryTime: z.number(),
+});
+
+export const auctionPageSchema = z.object({
+	lastUpdated: z.number(),
+	auctions: z.array(auctionItemSchema),
+	full: z.boolean(),
+	finalized: z.boolean(),
 });
 
 export const factionSchema = z.object({
 	time: z.number(),
 	week: z.string(),
 	statistic: z.string(),
-	player_uuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
+	player_uuid: z
+		.string()
+		.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID format'),
 	factionName: z.string(),
 	place: z.number(),
 	value: z.number(),
@@ -131,3 +180,7 @@ export type guildPlayer = z.infer<typeof guildPlayerSchema>;
 export type guild = z.infer<typeof guildSchema>;
 export type friend = z.infer<typeof friendSchema>;
 export type faction = z.infer<typeof factionSchema>;
+export type auctionType = z.infer<typeof auctionTypeSchema>;
+export type auctionStatus = z.infer<typeof auctionStatusSchema>;
+export type auctionItem = z.infer<typeof auctionItemSchema>;
+export type auctionPage = z.infer<typeof auctionPageSchema>;

@@ -2,6 +2,9 @@ import axios, { AxiosInstance, CreateAxiosDefaults } from 'axios';
 import debug from 'debug';
 import { z } from 'zod';
 import {
+	auctionItem,
+	auctionPage,
+	auctionPageSchema,
 	economyVolumeHistory,
 	economyVolumeHistorySchema,
 	faction,
@@ -592,9 +595,90 @@ class ManaCubeApi {
 			this.validateResponse(z.number(), data),
 		);
 	}
+
+	private parseAuctionPage(data: unknown): auctionPage {
+		if (data === null || data === undefined || data === '') {
+			return { lastUpdated: 0, auctions: [], full: false, finalized: false };
+		}
+		return this.validateResponse(auctionPageSchema, data);
+	}
+
+	async getActiveAuctions(
+		gamemode: string,
+		page: number,
+		options?: RequestOptions,
+	): Promise<auctionPage> {
+		this.validateInput(gamemodeInputSchema, gamemode);
+		this.validateInput(pageInputSchema, page);
+		return this.makeRequest(`auctions/active/${gamemode}/${page}`, options).then((data) =>
+			this.parseAuctionPage(data),
+		);
+	}
+
+	async getRecentlyEndedAuctions(
+		gamemode: string,
+		page: number,
+		options?: RequestOptions,
+	): Promise<auctionPage> {
+		this.validateInput(gamemodeInputSchema, gamemode);
+		this.validateInput(pageInputSchema, page);
+		return this.makeRequest(`auctions/ended/${gamemode}/${page}`, options).then((data) =>
+			this.parseAuctionPage(data),
+		);
+	}
+
+	async getPlayerAuctions(
+		uuid: string,
+		gamemode: string,
+		page: number,
+		options?: RequestOptions,
+	): Promise<auctionPage> {
+		this.validateInput(uuidInputSchema, uuid);
+		this.validateInput(gamemodeInputSchema, gamemode);
+		this.validateInput(pageInputSchema, page);
+		return this.makeRequest(
+			`auctions/player/${this.safe_uuid(uuid)}/${gamemode}/${page}`,
+			options,
+		).then((data) => this.parseAuctionPage(data));
+	}
+
+	private async collectAuctionPages(
+		fetchPage: (page: number) => Promise<auctionPage>,
+		maxPages: number,
+	): Promise<Array<auctionItem>> {
+		const auctions: Array<auctionItem> = [];
+		for (let page = 1; page <= maxPages; page++) {
+			const result = await fetchPage(page);
+			auctions.push(...result.auctions);
+			if (!result.full) break;
+		}
+		return auctions;
+	}
+
+	async getAllActiveAuctions(
+		gamemode: string,
+		maxPages = 50,
+		options?: RequestOptions,
+	): Promise<Array<auctionItem>> {
+		return this.collectAuctionPages(
+			(page) => this.getActiveAuctions(gamemode, page, options),
+			maxPages,
+		);
+	}
+
+	async getAllPlayerAuctions(
+		uuid: string,
+		gamemode: string,
+		maxPages = 50,
+		options?: RequestOptions,
+	): Promise<Array<auctionItem>> {
+		return this.collectAuctionPages(
+			(page) => this.getPlayerAuctions(uuid, gamemode, page, options),
+			maxPages,
+		);
+	}
 }
 
 export { ManaCubeApi };
 
-// Export all schemas and types for external use
 export * from './types/default';
