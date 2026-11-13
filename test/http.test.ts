@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
+import { z } from 'zod';
 import { ManaCubeApi, ManaCubeApiError, ManaCubeError, ManaCubeRateLimitError, ManaCubeValidationError } from '../src';
 import * as f from './fixtures';
 import { mockClient, ok } from './helpers';
@@ -343,5 +344,60 @@ describe('options', () => {
 		const { api, calls } = mockClient({ '/patrons/uuids': ok([]) }, { apiKey: 'secret' });
 		await api.patrons.uuids();
 		expect(calls[0]!.headers.authorization).toBeUndefined();
+	});
+});
+
+describe('custom requests', () => {
+	test('call a path the client does not define, with params and query', async () => {
+		const { api, calls } = mockClient({ '/dev/stats/earth?day=1&tag=a&tag=b': ok({ online: 5 }) });
+		const result = await api.request('GET /dev/stats/{gamemode}', {
+			params: { gamemode: 'earth' },
+			query: { day: 1, tag: ['a', 'b'] },
+		});
+		expect(result).toEqual({ online: 5 });
+		expectTypeOf(result).toEqualTypeOf<unknown>();
+		expect(calls[0]).toMatchObject({ method: 'GET', url: '/dev/stats/earth?day=1&tag=a&tag=b' });
+	});
+
+	test('a schema validates and types the response', async () => {
+		const schema = z.object({ online: z.number() });
+		const { api } = mockClient({ '/dev/stats': [ok({ online: 5 }), ok({ online: 'five' })] });
+		const result = await api.request('GET /dev/stats', { schema });
+		expectTypeOf(result).toEqualTypeOf<{ online: number }>();
+		expect(result.online).toBe(5);
+		await expect(api.request('GET /dev/stats', { schema })).rejects.toBeInstanceOf(ManaCubeValidationError);
+	});
+
+	test('auth, a JSON body and per-call headers', async () => {
+		const { api, calls } = mockClient({ '/dev/reset': ok(undefined) }, { apiKey: 'secret' });
+		await api.request('POST /dev/reset', { auth: true, body: { uuid: f.UUID } }, { headers: { 'x-trace': '1' } });
+		expect(calls[0]).toMatchObject({
+			method: 'POST',
+			headers: { authorization: 'secret', 'content-type': 'application/json', 'x-trace': '1' },
+			body: JSON.stringify({ uuid: f.UUID }),
+		});
+	});
+
+	test('notFoundAsNull resolves a 404 to null', async () => {
+		const { api } = mockClient({ '/dev/missing': { status: 404, body: { message: 'nope' } } });
+		const result = await api.request('GET /dev/missing', { schema: z.number(), notFoundAsNull: true });
+		expectTypeOf(result).toEqualTypeOf<number | null>();
+		expect(result).toBeNull();
+	});
+
+	test('errors and rate limits behave like the built-in methods', async () => {
+		const { api } = mockClient(
+			{ '/dev/a': { status: 500, body: { message: 'boom' } }, '/dev/b': tooMany },
+			{ retryOnRateLimit: false },
+		);
+		await expect(api.request('GET /dev/a')).rejects.toMatchObject({ status: 500, message: 'ManaCube API 500: boom' });
+		await expect(api.request('GET /dev/b')).rejects.toBeInstanceOf(ManaCubeRateLimitError);
+	});
+
+	test('rejects a malformed endpoint before sending', async () => {
+		const { api, fetch } = mockClient({});
+		await expect(api.request('get /x' as never)).rejects.toThrow('expected "METHOD /path"');
+		await expect(api.request('GET https://evil.test/x' as never)).rejects.toThrow(ManaCubeError);
+		expect(fetch).not.toHaveBeenCalled();
 	});
 });

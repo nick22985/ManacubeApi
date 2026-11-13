@@ -1,6 +1,18 @@
 # Changelog
 
-## Unreleased
+## 2.2.0
+
+### Added
+
+- `api.request(endpoint, { params, query, schema, body, auth, notFoundAsNull }, options)` for
+  endpoints the package doesn't cover, such as private or development ones. It uses the client's
+  headers, API key, rate limiting, timeout, validation and errors.
+
+### Fixed
+
+- The 2.1.0 changelog entry was published under "Unreleased".
+
+## 2.1.0
 
 ### Added
 

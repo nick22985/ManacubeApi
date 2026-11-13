@@ -1,4 +1,13 @@
-import { HttpClient, type ManaCubeApiOptions, type RateLimitState } from './http';
+import { z } from 'zod';
+import { ManaCubeError } from './errors';
+import {
+	type CustomRequest,
+	HttpClient,
+	type ManaCubeApiOptions,
+	type RateLimitState,
+	type RequestOptions,
+	type RequestTarget,
+} from './http';
 import { Auctions } from './resources/auctions';
 import { Economy } from './resources/economy';
 import { Factions } from './resources/factions';
@@ -47,16 +56,33 @@ export class ManaCubeApi {
 	get rateLimit(): Readonly<RateLimitState> {
 		return this.http.rateLimit;
 	}
+
+	request<T = unknown>(
+		endpoint: RequestTarget,
+		call: CustomRequest<T> & { notFoundAsNull: true },
+		options?: RequestOptions,
+	): Promise<T | null>;
+	request<T = unknown>(endpoint: RequestTarget, call?: CustomRequest<T>, options?: RequestOptions): Promise<T>;
+	async request<T>(endpoint: RequestTarget, call: CustomRequest<T> = {}, options?: RequestOptions) {
+		if (typeof endpoint !== 'string' || !/^(GET|POST|PUT|PATCH|DELETE) \/\S*$/.test(endpoint)) {
+			throw new ManaCubeError(`Invalid endpoint ${JSON.stringify(endpoint)}; expected "METHOD /path"`);
+		}
+		const schema = (call.schema ?? z.unknown()) as z.ZodType<T>;
+		return this.http.request(endpoint, { ...call, schema: call.notFoundAsNull ? schema.nullable() : schema }, options);
+	}
 }
 
 export { endpoints } from './endpoints';
 export * from './errors';
 export type {
+	CustomRequest,
+	HttpMethod,
 	Logger,
 	ManaCubeApiOptions,
 	RateLimitScope,
 	RateLimitState,
 	RequestOptions,
+	RequestTarget,
 	ValidationMode,
 } from './http';
 export { DEFAULT_BASE_URL } from './http';

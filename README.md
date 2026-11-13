@@ -153,6 +153,28 @@ accept any string.
 for `guilds.player`, a player without a guild). Wonders, events, policies and shops are only
 published for some gamemodes; the others answer 404.
 
+### Other endpoints
+
+`api.request` calls any path on `baseUrl`, including private or development endpoints the
+package doesn't know about. It goes through the same client as the methods above: headers, the
+API key, rate limits, timeouts and errors all work the same way.
+
+```ts
+import { z } from 'zod';
+
+const stats = await api.request('GET /dev/stats/{gamemode}', {
+	params: { gamemode: 'earth' }, // URL-encoded into the path
+	query: { day: 1, tag: ['a', 'b'] }, // arrays repeat the key
+	schema: z.object({ online: z.number() }), // optional; without it the result is unknown
+});
+
+await api.request('POST /dev/reset', { auth: true, body: { uuid } }, { headers: { 'x-trace': '1' } });
+```
+
+`auth: true` requires an API key, `body` is sent as JSON, and `notFoundAsNull: true` resolves a 404
+to `null`. The endpoint must be a method followed by a path; for another host, such as a dev
+server, create a second client with that `baseUrl`.
+
 ### Pagination
 
 Iterators fetch the next page only when you reach it, so `break` stops fetching. `toArray`

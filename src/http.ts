@@ -1,5 +1,4 @@
 import type { ZodType } from 'zod';
-import type { Endpoint } from './endpoints';
 import { ManaCubeApiError, ManaCubeError, ManaCubeRateLimitError, ManaCubeValidationError } from './errors';
 
 export const DEFAULT_BASE_URL = 'https://api.manacube.com/api';
@@ -7,6 +6,10 @@ export const DEFAULT_BASE_URL = 'https://api.manacube.com/api';
 export type ValidationMode = 'warn' | 'strict' | 'off';
 
 export type RateLimitScope = 'client' | 'request';
+
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export type RequestTarget = `${HttpMethod} /${string}`;
 
 export interface Logger {
 	debug?(message: string, ...args: unknown[]): void;
@@ -46,7 +49,10 @@ export interface Call<T> {
 	query?: Record<string, QueryValue>;
 	auth?: boolean;
 	notFoundAsNull?: boolean;
+	body?: unknown;
 }
+
+export type CustomRequest<T = unknown> = Omit<Call<T>, 'schema'> & { schema?: ZodType<T> };
 
 const MAX_BACKOFF_MS = 30_000;
 const LOW_REMAINING_PAUSE_MS = 1_000;
@@ -89,14 +95,16 @@ export class HttpClient {
 		this.lowRemaining = Math.min(maxConcurrency, 8);
 	}
 
-	async request<T>(endpoint: Endpoint, call: Call<T>, options: RequestOptions = {}): Promise<T> {
+	async request<T>(endpoint: RequestTarget, call: Call<T>, options: RequestOptions = {}): Promise<T> {
 		const [method, template] = endpoint.split(' ') as [string, string];
 		const url = this.buildUrl(template, call.params, call.query);
+		const body = call.body === undefined ? undefined : JSON.stringify(call.body);
 		const retry = options.retryOnRateLimit ?? this.retryOnRateLimit;
 
 		const headers = mergeHeaders(
 			this.headers,
 			call.auth && this.apiKey ? { authorization: this.apiKey } : undefined,
+			call.body === undefined ? undefined : { 'content-type': 'application/json' },
 			options.headers,
 		);
 		if (call.auth && !headers.authorization) {
@@ -119,7 +127,7 @@ export class HttpClient {
 					await sleep(wait, options.signal);
 				}
 
-				const response = await this.send(method, url, headers, options.signal);
+				const response = await this.send(method, url, headers, body, options.signal);
 				const remaining = Number(response.headers.get('x-rate-limit-remaining'));
 				if (this.sharedRateLimit && response.headers.has('x-rate-limit-remaining') && !Number.isNaN(remaining)) {
 					this.rateLimit.remaining = remaining;
@@ -127,25 +135,31 @@ export class HttpClient {
 						this.pausedUntil = Math.max(this.pausedUntil, Date.now() + LOW_REMAINING_PAUSE_MS);
 					}
 				}
-				const body = await readBody(response);
+				const data = await readBody(response);
 
 				if (response.status === 429) {
 					const backoff = Math.min(1000 * 2 ** attempt, MAX_BACKOFF_MS);
 					const delay = Math.max(retryAfterMs(response.headers) ?? 0, backoff);
 					blockedUntil = Date.now() + delay;
 					if (this.sharedRateLimit) this.rateLimit.blockedUntil = Math.max(this.rateLimit.blockedUntil, blockedUntil);
-					if (!retry || attempt >= this.maxRetries) throw new ManaCubeRateLimitError(url, body, delay);
+					if (!retry || attempt >= this.maxRetries) throw new ManaCubeRateLimitError(url, data, delay);
 					continue;
 				}
 				if (response.status === 404 && call.notFoundAsNull) return null as T;
-				if (!response.ok) throw new ManaCubeApiError(response.status, url, body);
+				if (!response.ok) throw new ManaCubeApiError(response.status, url, data);
 
-				return this.parse(call.schema, body, `${method} ${template}`);
+				return this.parse(call.schema, data, `${method} ${template}`);
 			}
 		}, options.signal);
 	}
 
-	private async send(method: string, url: string, headers: Record<string, string>, signal?: AbortSignal) {
+	private async send(
+		method: string,
+		url: string,
+		headers: Record<string, string>,
+		body: string | undefined,
+		signal?: AbortSignal,
+	) {
 		const signals = [signal, this.timeout > 0 ? AbortSignal.timeout(this.timeout) : undefined].filter(
 			(s): s is AbortSignal => s !== undefined,
 		);
@@ -154,6 +168,7 @@ export class HttpClient {
 			return await this.fetchImpl(url, {
 				method,
 				headers,
+				body,
 				signal: signals.length ? AbortSignal.any(signals) : undefined,
 			});
 		} catch (error) {
