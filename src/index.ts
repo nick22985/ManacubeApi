@@ -51,7 +51,14 @@ export class ManaCubeApi {
 
 export { endpoints } from './endpoints';
 export * from './errors';
-export type { Logger, ManaCubeApiOptions, RateLimitState, RequestOptions, ValidationMode } from './http';
+export type {
+	Logger,
+	ManaCubeApiOptions,
+	RateLimitScope,
+	RateLimitState,
+	RequestOptions,
+	ValidationMode,
+} from './http';
 export { DEFAULT_BASE_URL } from './http';
 export { normalizeUuid } from './input';
 export { type IterateOptions, toArray } from './paginate';

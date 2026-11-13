@@ -84,6 +84,7 @@ new ManaCubeApi({
 	apiKey: process.env.MANACUBE_API_KEY, // only partner endpoints need it
 	timeout: 30_000, // per attempt, 0 disables
 	retryOnRateLimit: true, // wait and retry on 429
+	rateLimitScope: 'client', // 'client' | 'request', see Rate limits
 	maxRetries: 3,
 	maxConcurrency: 4, // requests in flight at once; the rest queue. Infinity disables
 	validation: 'warn', // 'warn' | 'strict' | 'off'
@@ -93,8 +94,13 @@ new ManaCubeApi({
 });
 ```
 
-Every method also takes a last `options` argument with `signal` (an `AbortSignal`) and
-`retryOnRateLimit` to override the client setting for that call.
+Every method also takes a last `options` argument with `signal` (an `AbortSignal`),
+`retryOnRateLimit` to override the client setting for that call, and `headers`, which are merged
+over the client headers (names are case-insensitive).
+
+`apiKey` is only sent to partner endpoints. To send a key with every request, set it as a header
+instead: `headers: { authorization: key }`. A key in the client or per-call headers also counts as
+the key for partner endpoints.
 
 UUIDs are accepted with or without dashes. Gamemode arguments autocomplete the known gamemodes
 (`survival`, `skyblock`, `olympus`, `parkour`, `islands`, `earth`, `kitpvp`, `lifesteal`) but
@@ -197,6 +203,26 @@ After a 429 the client holds back every request it makes until the limit lifts (
 up to `maxRetries` times. With `retryOnRateLimit: false` it throws `ManaCubeRateLimitError`
 instead, without sending requests while the limit is in effect. `api.rateLimit` shows the last
 `x-rate-limit-remaining` value and when the hold ends.
+
+All of that assumes one caller. A server that proxies requests for many users (forwarding each
+user's IP in a header, say) gets a separate limit per user, so one user's 429 shouldn't hold back
+the others. With `rateLimitScope: 'request'`, a 429 only affects the request that got it: that
+request backs off and retries (or throws, with `retryOnRateLimit: false`), other requests are not
+held back, the low-remaining pause is skipped, and `api.rateLimit` isn't updated. Set
+`maxConcurrency: Infinity` too if one user's requests shouldn't wait in the queue behind
+another's.
+
+```ts
+const api = new ManaCubeApi({
+	rateLimitScope: 'request',
+	maxConcurrency: Infinity,
+	retryOnRateLimit: false,
+	validation: 'strict',
+	headers: { authorization: process.env.MANACUBE_API_KEY! },
+});
+
+await api.towny.towns('earth', { headers: { 'x-client-ip': visitorIp }, signal });
+```
 
 ### Response validation
 

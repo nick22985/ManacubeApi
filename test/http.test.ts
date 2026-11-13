@@ -191,6 +191,50 @@ describe('rate limiting', () => {
 		await expect(next).resolves.toEqual([]);
 	});
 
+	test('with request scope, a 429 does not hold back other requests', async () => {
+		vi.useFakeTimers();
+		const { api, calls } = mockClient(
+			{
+				'/patrons/uuids': [{ ...tooMany, headers: { 'retry-after': '5' } }, ok([])],
+				'/patrons/patrons': ok([]),
+			},
+			{ rateLimitScope: 'request' },
+		);
+		const first = api.patrons.uuids();
+		await vi.advanceTimersByTimeAsync(0);
+		await api.patrons.patrons();
+		expect(calls.map((c) => c.url)).toEqual(['/patrons/uuids', '/patrons/patrons']);
+		await vi.advanceTimersByTimeAsync(4999);
+		expect(calls).toHaveLength(2);
+		await vi.advanceTimersByTimeAsync(1);
+		await first;
+		expect(calls).toHaveLength(3);
+		expect(api.rateLimit.blockedUntil).toBe(0);
+	});
+
+	test('with request scope and retrying off, only the limited request fails', async () => {
+		const { api, fetch } = mockClient(
+			{ '/patrons/uuids': [{ ...tooMany, headers: { 'retry-after': '60' } }, ok([])] },
+			{ rateLimitScope: 'request', retryOnRateLimit: false },
+		);
+		const error = await api.patrons.uuids().catch((e) => e);
+		expect(error).toBeInstanceOf(ManaCubeRateLimitError);
+		expect(error.retryAfterMs).toBe(60_000);
+		await expect(api.patrons.uuids()).resolves.toEqual([]);
+		expect(fetch).toHaveBeenCalledTimes(2);
+	});
+
+	test('with request scope, low remaining does not pause or get tracked', async () => {
+		const { api, calls } = mockClient(
+			{ '/patrons/uuids': ok([], { 'x-rate-limit-remaining': '0' }), '/patrons/patrons': ok([]) },
+			{ rateLimitScope: 'request' },
+		);
+		await api.patrons.uuids();
+		await api.patrons.patrons();
+		expect(calls).toHaveLength(2);
+		expect(api.rateLimit.remaining).toBeUndefined();
+	});
+
 	test('retryOnRateLimit can be overridden per request', async () => {
 		const { api, fetch } = mockClient({ '/patrons/uuids': tooMany });
 		await expect(api.patrons.uuids({ retryOnRateLimit: false })).rejects.toBeInstanceOf(ManaCubeRateLimitError);
@@ -264,6 +308,35 @@ describe('options', () => {
 			'https://example.test/api/patrons/uuids',
 			expect.objectContaining({ headers: { accept: 'application/json', 'user-agent': 'bot' } }),
 		);
+	});
+
+	test('per-call headers are merged over client headers, ignoring case', async () => {
+		const { api, calls } = mockClient({ '/patrons/uuids': ok([]) }, { headers: { 'User-Agent': 'bot', 'X-A': '1' } });
+		await api.patrons.uuids({ headers: { 'x-a': '2', 'X-Client-IP': '203.0.113.7' } });
+		await api.patrons.uuids();
+		expect(calls[0]!.headers).toEqual({
+			accept: 'application/json',
+			'user-agent': 'bot',
+			'x-a': '2',
+			'x-client-ip': '203.0.113.7',
+		});
+		expect(calls[1]!.headers['x-client-ip']).toBeUndefined();
+	});
+
+	test('an authorization header is sent everywhere and satisfies partner endpoints', async () => {
+		const { api, calls } = mockClient(
+			{ '/patrons/uuids': ok([]), [`/playtime/reset/${f.UUID}`]: ok(undefined) },
+			{ headers: { Authorization: 'secret' } },
+		);
+		await api.patrons.uuids();
+		await api.players.resetPlaytime(f.UUID);
+		expect(calls.map((c) => c.headers.authorization)).toEqual(['secret', 'secret']);
+	});
+
+	test('a per-call authorization header overrides apiKey', async () => {
+		const { api, calls } = mockClient({ [`/playtime/reset/${f.UUID}`]: ok(undefined) }, { apiKey: 'secret' });
+		await api.players.resetPlaytime(f.UUID, { headers: { authorization: 'other' } });
+		expect(calls[0]!.headers.authorization).toBe('other');
 	});
 
 	test('the api key is only sent to endpoints that need it', async () => {

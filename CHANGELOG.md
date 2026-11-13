@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `headers` per call, merged over the client headers. Header names are now case-insensitive, so
+  `{ Accept: … }` replaces the default `accept` header instead of being sent alongside it.
+- `rateLimitScope: 'request'`, for servers that proxy many users: a 429 only backs off the request
+  that got it, instead of holding back every request on the client.
+- An `authorization` header in the client or per-call headers counts as the API key for partner
+  endpoints, so `headers: { authorization: key }` sends the key with every request.
+
 ## 2.0.1
 
 ### Fixed

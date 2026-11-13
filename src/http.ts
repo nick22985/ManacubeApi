@@ -6,6 +6,8 @@ export const DEFAULT_BASE_URL = 'https://api.manacube.com/api';
 
 export type ValidationMode = 'warn' | 'strict' | 'off';
 
+export type RateLimitScope = 'client' | 'request';
+
 export interface Logger {
 	debug?(message: string, ...args: unknown[]): void;
 	warn(message: string, ...args: unknown[]): void;
@@ -18,6 +20,7 @@ export interface ManaCubeApiOptions {
 	headers?: Record<string, string>;
 	timeout?: number;
 	retryOnRateLimit?: boolean;
+	rateLimitScope?: RateLimitScope;
 	maxRetries?: number;
 	maxConcurrency?: number;
 	validation?: ValidationMode;
@@ -27,6 +30,7 @@ export interface ManaCubeApiOptions {
 export interface RequestOptions {
 	signal?: AbortSignal;
 	retryOnRateLimit?: boolean;
+	headers?: Record<string, string>;
 }
 
 export interface RateLimitState {
@@ -54,6 +58,7 @@ export class HttpClient {
 	private readonly headers: Record<string, string>;
 	private readonly timeout: number;
 	private readonly retryOnRateLimit: boolean;
+	private readonly sharedRateLimit: boolean;
 	private readonly maxRetries: number;
 	private readonly validation: ValidationMode;
 	private readonly logger: Logger;
@@ -69,9 +74,10 @@ export class HttpClient {
 		const fetchImpl = options.fetch ?? globalThis.fetch;
 		if (!fetchImpl) throw new ManaCubeError('No fetch implementation found; pass one as options.fetch');
 		this.fetchImpl = fetchImpl;
-		this.headers = { accept: 'application/json', ...options.headers };
+		this.headers = mergeHeaders({ accept: 'application/json' }, options.headers);
 		this.timeout = options.timeout ?? 30_000;
 		this.retryOnRateLimit = options.retryOnRateLimit ?? true;
+		this.sharedRateLimit = (options.rateLimitScope ?? 'client') === 'client';
 		this.maxRetries = options.maxRetries ?? 3;
 		this.validation = options.validation ?? 'warn';
 		this.logger = options.logger ?? { warn: (message, ...args) => console.warn(message, ...args) };
@@ -88,19 +94,26 @@ export class HttpClient {
 		const url = this.buildUrl(template, call.params, call.query);
 		const retry = options.retryOnRateLimit ?? this.retryOnRateLimit;
 
-		const headers = { ...this.headers };
-		if (call.auth) {
-			if (!this.apiKey) throw new ManaCubeError(`${endpoint} requires an API key; pass options.apiKey`);
-			headers.authorization = this.apiKey;
+		const headers = mergeHeaders(
+			this.headers,
+			call.auth && this.apiKey ? { authorization: this.apiKey } : undefined,
+			options.headers,
+		);
+		if (call.auth && !headers.authorization) {
+			throw new ManaCubeError(`${endpoint} requires an API key; pass options.apiKey or an authorization header`);
 		}
 
 		return this.limiter.run(async () => {
+			let blockedUntil = 0;
 			for (let attempt = 0; ; attempt++) {
 				const now = Date.now();
-				if (this.rateLimit.blockedUntil > now && !retry) {
-					throw new ManaCubeRateLimitError(url, undefined, this.rateLimit.blockedUntil - now);
+				if (this.sharedRateLimit) {
+					if (this.rateLimit.blockedUntil > now && !retry) {
+						throw new ManaCubeRateLimitError(url, undefined, this.rateLimit.blockedUntil - now);
+					}
+					blockedUntil = Math.max(this.rateLimit.blockedUntil, this.pausedUntil);
 				}
-				const wait = Math.max(this.rateLimit.blockedUntil, this.pausedUntil) - now;
+				const wait = blockedUntil - now;
 				if (wait > 0) {
 					this.logger.debug?.(`manacube: rate limited, waiting ${wait}ms before ${method} ${url}`);
 					await sleep(wait, options.signal);
@@ -108,7 +121,7 @@ export class HttpClient {
 
 				const response = await this.send(method, url, headers, options.signal);
 				const remaining = Number(response.headers.get('x-rate-limit-remaining'));
-				if (response.headers.has('x-rate-limit-remaining') && !Number.isNaN(remaining)) {
+				if (this.sharedRateLimit && response.headers.has('x-rate-limit-remaining') && !Number.isNaN(remaining)) {
 					this.rateLimit.remaining = remaining;
 					if (remaining < this.lowRemaining) {
 						this.pausedUntil = Math.max(this.pausedUntil, Date.now() + LOW_REMAINING_PAUSE_MS);
@@ -119,7 +132,8 @@ export class HttpClient {
 				if (response.status === 429) {
 					const backoff = Math.min(1000 * 2 ** attempt, MAX_BACKOFF_MS);
 					const delay = Math.max(retryAfterMs(response.headers) ?? 0, backoff);
-					this.rateLimit.blockedUntil = Math.max(this.rateLimit.blockedUntil, Date.now() + delay);
+					blockedUntil = Date.now() + delay;
+					if (this.sharedRateLimit) this.rateLimit.blockedUntil = Math.max(this.rateLimit.blockedUntil, blockedUntil);
 					if (!retry || attempt >= this.maxRetries) throw new ManaCubeRateLimitError(url, body, delay);
 					continue;
 				}
@@ -218,6 +232,14 @@ class Limiter {
 			signal?.addEventListener('abort', onAbort, { once: true });
 		});
 	}
+}
+
+function mergeHeaders(...sources: (Record<string, string> | undefined)[]): Record<string, string> {
+	const out: Record<string, string> = {};
+	for (const source of sources) {
+		for (const [key, value] of Object.entries(source ?? {})) out[key.toLowerCase()] = value;
+	}
+	return out;
 }
 
 async function readBody(response: Response): Promise<unknown> {
