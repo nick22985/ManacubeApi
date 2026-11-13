@@ -1,23 +1,29 @@
 {
 	"name": "manacube",
 	"version": "1.2.24",
-	"description": "A typescript npm packages to interact with the mana api",
+	"description": "Typed client for the ManaCube public API",
 	"main": "dist/index.cjs",
 	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
 		}
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"files": [
-		"dist/**/*"
+		"dist",
+		"CHANGELOG.md"
 	],
 	"keywords": [
 		"mana",
@@ -38,32 +44,35 @@
 		"url": "git+https://github.com/nick22985/ManacubeApi.git"
 	},
 	"scripts": {
-		"start": "nodemon --exec ts-node src/index.ts",
 		"build": "tsup",
-		"test": "jest",
-		"prepublishOnly": "npm run build && npm test",
-		"release": "npm version patch && git push && git push --tags && npm publish",
-		"release:minor": "npm version minor && git push && git push --tags && npm publish",
-		"release:major": "npm version major && git push && git push --tags && npm publish"
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"format": "biome check --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"check": "npm run lint && npm run typecheck && npm run build && npm test",
+		"smoke": "npm run build && node scripts/smoke.mjs",
+		"spec:update": "node scripts/update-spec.mjs",
+		"preversion": "npm run check",
+		"prepublishOnly": "npm run build",
+		"release": "npm version patch && git push --follow-tags",
+		"release:minor": "npm version minor && git push --follow-tags",
+		"release:major": "npm version major && git push --follow-tags"
 	},
 	"author": "nick22985",
 	"license": "MIT",
 	"dependencies": {
-		"axios": "^1.18.0",
-		"debug": "^4.4.3",
-		"qs": "^6.15.2",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
-		"@types/debug": "^4.1.13",
-		"@types/jest": "^30.0.0",
-		"@types/node": "^25.9.3",
-		"axios-mock-adapter": "^2.1.0",
-		"dotenv": "^17.4.2",
-		"jest": "^30.4.2",
-		"nodemon": "^3.1.14",
-		"ts-node": "^10.9.2",
-		"tsup": "^8.5.1",
-		"typescript": "^6.0.3"
+		"@biomejs/biome": "^2.6.7",
+		"@types/node": "^22.20.5",
+		"tsup": "^9.0.0",
+		"typescript": "^6.0.3",
+		"vitest": "^5.1.0"
+	},
+	"sideEffects": false,
+	"engines": {
+		"node": ">=22"
 	}
 }

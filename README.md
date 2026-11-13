@@ -35,8 +35,6 @@
 <p align="center">
   <a href="#dart-about">About</a> &#xa0; | &#xa0;
   <a href="#sparkles-features">Features</a> &#xa0; | &#xa0;
-  <a href="#rocket-technologies">Technologies</a> &#xa0; | &#xa0;
-  <a href="#white_check_mark-requirements">Requirements</a> &#xa0; | &#xa0;
   <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
   <a href="#memo-license">License</a> &#xa0; | &#xa0;
   <a href="https://github.com/nick22985" target="_blank">Author</a>
@@ -46,226 +44,232 @@
 
 ## :dart: About
 
-This project is a npm wrapper to integrate with the manacube api (https://api.manacube.com/)
+A typed TypeScript client for the [ManaCube public API](https://api.manacube.com/).
 
 ## :sparkles: Features
 
-:heavy_check_mark: Api Client;\
-:heavy_check_mark: Typescript;\
-
-## :rocket: Technologies
-
-The following tools were used in this project:
-
-- [Node.js](https://nodejs.org/en/)
-- [TypeScript](https://www.typescriptlang.org/)
-
-## :white_check_mark: Requirements
-
-Before starting :checkered_flag:, you need to have [Node](https://nodejs.org/en/) installed.
+- Every endpoint in the [ManaCube API spec](https://api.manacube.com/v3/api-docs), grouped by area
+- Types and [zod](https://zod.dev) schemas for every response, checked against the live API
+- Queues requests and waits out rate limits instead of failing
+- Async iterators for paginated endpoints
+- Typed errors with the API's error body attached
+- Uses the platform `fetch`; zod is the only dependency. Works in Node 22+, Bun, Deno and browsers.
 
 ## :checkered_flag: Starting
 
 ```bash
-# Install the project
-$ npm i manacube
-
-# import / declare client
-const manacubeApi = require("manacube")
-let manacubeClient = new manacubeApi.ManaCubeApi()
-
-# Run the project
-you can now use the client and the function to interact with the manacube api
-
+npm i manacube
 ```
 
-## Functions
+```ts
+import { ManaCubeApi } from 'manacube';
 
-Declaring Client
+const api = new ManaCubeApi();
 
-```js
-// Declare api instance
-// Has to options baseUrl and disableSafeUUIDCheck. BaseUrl changes the default api url
-// disableSafeUUIDCheck will not run any checks against any UUID imputed into the api.
-let manacubeClient = new manacubeApi.ManaCubeApi();
-let manacubeClient = new manacubeApi.ManaCubeApi('https://api.manacube.com/api/', true); // Disables UUID CHECKS
+const guild = await api.guilds.player('30f8109e-7ea7-4ae7-90f4-178bb39cfe31');
+const towns = await api.towny.towns('earth');
+
+for await (const auction of api.auctions.iterateActive('survival')) {
+	console.log(auction.item, auction.price);
+}
 ```
 
-Reforms UUID to the correct formatting for the api or returns `Invalid UUID` if UUID isn't the valid minecraft format.
+CommonJS works too: `const { ManaCubeApi } = require('manacube')`.
 
-```js
-manacubeClient.safeUUIDCheck('f91c3347-4be2-48f2-be73-9a4323f08497'); //return f91c3347-4be2-48f2-be73-9a4323f08497
-manacubeClient.safeUUIDCheck('f91c3347-4be248f2be73-9a4323f08497'); //return f91c3347-4be2-48f2-be73-9a4323f08497
-manacubeClient.safeUUIDCheck('f91c33474be248f2be739a4323f08497'); //return f91c3347-4be2-48f2-be73-9a4323f08497
-manacubeClient.safeUUIDCheck('f91c33474be248323f08497'); //return Invalid UUID
+## Options
+
+```ts
+new ManaCubeApi({
+	baseUrl: 'https://api.manacube.com/api', // default
+	apiKey: process.env.MANACUBE_API_KEY, // only partner endpoints need it
+	timeout: 30_000, // per attempt, 0 disables
+	retryOnRateLimit: true, // wait and retry on 429
+	maxRetries: 3,
+	maxConcurrency: 4, // requests in flight at once; the rest queue. Infinity disables
+	validation: 'warn', // 'warn' | 'strict' | 'off'
+	headers: { 'user-agent': 'my-bot' },
+	fetch: customFetch, // defaults to globalThis.fetch
+	logger: { warn: console.warn, debug: console.debug }, // debug traces requests and rate-limit waits
+});
 ```
 
-Get Users sva's
+Every method also takes a last `options` argument with `signal` (an `AbortSignal`) and
+`retryOnRateLimit` to override the client setting for that call.
 
-```js
-@param uuid MCC UUID
-@param gamemode gamemode to get stats for
-@returns A single users svas
+UUIDs are accepted with or without dashes. Gamemode arguments autocomplete the known gamemodes
+(`survival`, `skyblock`, `olympus`, `parkour`, `islands`, `earth`, `kitpvp`, `lifesteal`) but
+accept any string.
 
-manacubeClient.getUserSvas(uuid, gamemode);
+## Endpoints
+
+| Method                                                  | Endpoint                                            |
+| ------------------------------------------------------- | --------------------------------------------------- |
+| `auctions.active(gamemode, page)`                       | `GET /auctions/active/{gamemode}/{page}`            |
+| `auctions.ended(gamemode, page)`                        | `GET /auctions/ended/{gamemode}/{page}`             |
+| `auctions.player(uuid, gamemode, page)`                 | `GET /auctions/player/{uuid}/{gamemode}/{page}`     |
+| `auctions.iterateActive / iterateEnded / iteratePlayer` | all pages of the above                              |
+| `economy.prices(gamemode)`                              | `GET /manaeconomy/prices/{gamemode}`                |
+| `economy.priceHistory(gamemode, page)`                  | `GET /manaeconomy/history/prices/{gamemode}/{page}` |
+| `economy.volumeHistory(gamemode, page)`                 | `GET /manaeconomy/history/volume/{gamemode}/{page}` |
+| `economy.iteratePriceHistory / iterateVolumeHistory`    | all pages of the above                              |
+| `factions.placeholder(name)`                            | `GET /factions/placeholder/{placeholder}`           |
+| `factions.payouts(season)`                              | `GET /factions/payouts/{season}`                    |
+| `guilds.top(amount)`                                    | `GET /guilds/top/{amount}`                          |
+| `guilds.player(uuid)`                                   | `GET /guilds/player/{uuid}`                         |
+| `patrons.uuids()`                                       | `GET /patrons/uuids`                                |
+| `patrons.patrons()`                                     | `GET /patrons/patrons`                              |
+| `patrons.patronsPlus()`                                 | `GET /patrons/patronsplus`                          |
+| `players.get(uuids)`                                    | `GET /players` (up to 100)                          |
+| `players.friends(uuid)`                                 | `GET /friends/{uuid}`                               |
+| `players.level(uuid)`                                   | `GET /manalevel/{uuid}`                             |
+| `players.cubits(uuid)`                                  | `GET /cubits/{uuid}`                                |
+| `players.resetPlaytime(uuid)`                           | `POST /playtime/reset/{uuid}` (needs `apiKey`)      |
+| `rankings.boards(gamemode)`                             | `GET /rankings/{gamemode}/boards`                   |
+| `rankings.get(gamemode, boards, { limit })`             | `GET /rankings/{gamemode}`                          |
+| `realm.wonders(gamemode)`                               | `GET /wonders/{gamemode}`                           |
+| `realm.events(gamemode)`                                | `GET /events/{gamemode}`                            |
+| `realm.policy(gamemode)`                                | `GET /policy/{gamemode}`                            |
+| `shops.list(gamemode, { page, size })`                  | `GET /shops/{gamemode}`                             |
+| `shops.trades(gamemode, { shop, page, size })`          | `GET /shops/{gamemode}/trades`                      |
+| `shops.iterate / iterateTrades`                         | all pages of the above                              |
+| `svas.types(gamemode)`                                  | `GET /svas/{gamemode}`                              |
+| `svas.player(uuid, gamemode)`                           | `GET /svas/{gamemode}/{uuid}`                       |
+| `svas.sales(gamemode, sva)`                             | `GET /svas/sales/{gamemode}/{sva}`                  |
+| `svas.circulation(gamemode, sva)`                       | `GET /svas/circulation/{gamemode}/{sva}`            |
+| `towny.towns(gamemode)`                                 | `GET /towny/{gamemode}/towns`                       |
+| `towny.nations(gamemode)`                               | `GET /towny/{gamemode}/nations`                     |
+| `towny.claims(gamemode)`                                | `GET /towny/{gamemode}/claims`                      |
+| `towny.recruit(gamemode)`                               | `GET /recruit/{gamemode}`                           |
+| `updates.list({ realm, page, size })`                   | `GET /updates`                                      |
+| `updates.iterate({ realm, size })`                      | all pages of the above                              |
+
+`players.level`, `players.cubits` and `guilds.player` resolve to `null` for an unknown player (or,
+for `guilds.player`, a player without a guild). Wonders, events, policies and shops are only
+published for some gamemodes; the others answer 404.
+
+### Pagination
+
+Iterators fetch the next page only when you reach it, so `break` stops fetching. `toArray`
+collects one, with an optional item limit:
+
+```ts
+import { toArray } from 'manacube';
+
+const latest = await toArray(api.updates.iterate({ realm: 'Earth' }), 50);
+const shops = await toArray(api.shops.iterate('earth', {}, { maxPages: 5 }));
 ```
 
-Get gamemode sva's
+Every `page` argument and every returned `page` is 1-based. The shops and updates endpoints count
+from 0, and the client converts both ways.
 
-```js
-@param gamemode Gamemode to get stats for
-@returns Get all SVAs that a player owns on a specific gamemode
+Auction pages have no page count; the iterators follow pages while the API marks
+them `full`. The API sometimes sends an empty body for a page that has data, so the iterators
+retry an empty page once. A page past the end also comes back empty, and the single-page methods
+turn that into `{ lastUpdated: 0, auctions: [], full: false, finalized: false }`.
 
-manacubeClient.getAllGamemodeSvas(gamemode)
+### Errors
+
+```ts
+import { ManaCubeApiError, ManaCubeRateLimitError, ManaCubeValidationError } from 'manacube';
+
+try {
+	await api.realm.wonders('survival');
+} catch (error) {
+	if (error instanceof ManaCubeRateLimitError) console.log(`retry in ${error.retryAfterMs}ms`);
+	else if (error instanceof ManaCubeApiError)
+		console.log(error.status, error.body); // body.validGamemodes etc.
+	else if (error instanceof ManaCubeValidationError) console.log(error.source, error.issues);
+}
 ```
 
-Get Patrons list of patrons and patron+
+All of them extend `ManaCubeError`. Network failures and timeouts throw a `ManaCubeError` with the
+original error as `cause`; aborting through your own `signal` rethrows the abort reason.
 
-```js
-@returns List of patrons uuids
+### Rate limits
 
-manacubeClient.getAllPatrons()
+The API allows a burst of about 30 requests and refills a few per second. The client keeps
+`maxConcurrency` requests in flight and queues the rest, so `Promise.all` over a long list is
+safe. When a response reports fewer requests remaining than `maxConcurrency` (at most 8), the next
+request waits a second.
+
+After a 429 the client holds back every request it makes until the limit lifts (using
+`Retry-After` when the API sends it, otherwise backing off 1s, 2s, 4s… up to 30s), then retries
+up to `maxRetries` times. With `retryOnRateLimit: false` it throws `ManaCubeRateLimitError`
+instead, without sending requests while the limit is in effect. `api.rateLimit` shows the last
+`x-rate-limit-remaining` value and when the hold ends.
+
+### Response validation
+
+Responses are checked against the zod schemas exported from the package (`guildSchema`,
+`townyTownsSchema`, …). Unknown fields pass through. With `validation: 'warn'` a mismatch is
+logged once per client (so a bad field across 200 pages is one warning) and the data is returned
+as received; `'strict'` throws; `'off'` skips the check.
+
+## Migrating from 1.x
+
+2.0 is a rewrite. The constructor takes an options object, methods are grouped by area, and axios
+is gone.
+
+| 1.x                                                                            | 2.x                                                                       |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `new ManaCubeApi(baseUrl, disableSafeUUIDCheck, enableQueueing, axiosOptions)` | `new ManaCubeApi({ baseUrl, retryOnRateLimit, headers, timeout, fetch })` |
+| `getAllGamemodeSvas(gamemode)`                                                 | `svas.types(gamemode)`                                                    |
+| `getUserSvas(uuid, gamemode)`                                                  | `svas.player(uuid, gamemode)`                                             |
+| `getSvaSalesData(gamemode, sva)`                                               | `svas.sales(gamemode, sva)`                                               |
+| `getSvaCirculationData(gamemode, sva)`                                         | `svas.circulation(gamemode, sva)`                                         |
+| `getAllPatrons()`                                                              | `patrons.uuids()`                                                         |
+| `getPatrons()` / `getPatronPlus()`                                             | `patrons.patrons()` / `patrons.patronsPlus()`                             |
+| `getPlayerLevels(uuid)`                                                        | `players.level(uuid)`                                                     |
+| `getUserFriends(uuid)`                                                         | `players.friends(uuid)`                                                   |
+| `getPlayersCubitBalance(uuid)`                                                 | `players.cubits(uuid)`                                                    |
+| `economyCurrentSellPrices(gamemode)`                                           | `economy.prices(gamemode)`                                                |
+| `economyPriceHistory(gamemode, page)`                                          | `economy.priceHistory(gamemode, page)`                                    |
+| `economyVolumeHistory(gamemode, page)`                                         | `economy.volumeHistory(gamemode, page)`                                   |
+| `getTopGuilds(total)`                                                          | `guilds.top(amount)`                                                      |
+| `getPlayerGuild(uuid)`                                                         | `guilds.player(uuid)`                                                     |
+| `getGracePlaceholder(placeholder)`                                             | `factions.placeholder(placeholder)`                                       |
+| `getFactionsSeasonPayouts(season)`                                             | `factions.payouts(season)`                                                |
+| `getActiveAuctions` / `getRecentlyEndedAuctions` / `getPlayerAuctions`         | `auctions.active` / `auctions.ended` / `auctions.player`                  |
+| `getAllActiveAuctions(gamemode, maxPages)`                                     | `toArray(auctions.iterateActive(gamemode, { maxPages }))`                 |
+| `getAllPlayerAuctions(uuid, gamemode, maxPages)`                               | `toArray(auctions.iteratePlayer(uuid, gamemode, { maxPages }))`           |
+| `getPlayerStatisticsForGamemode`, `getListOfAllGamemodes`                      | removed; the API no longer has `/statistics`                              |
+| `safeUUIDCheck`, `disableSafeUUIDCheck`                                        | removed; UUIDs are always normalised (`normalizeUuid` is exported)        |
+| `setQueueing` / `getQueueing` / `{ enableQueueing }`                           | `maxConcurrency` and `retryOnRateLimit` options                           |
+| `axiosConfig`                                                                  | removed; use `headers`, `timeout` or a custom `fetch`                     |
+
+Other changes:
+
+- Types are PascalCase (`Guild`, `AuctionItem`, …) and schemas are exported alongside them.
+- `SvaSale.timesSold` replaces `timeSold`, and `SvaType.circulation` is a number, matching the API.
+- Errors are `ManaCubeError` subclasses instead of axios errors.
+- Input errors throw `ManaCubeValidationError` instead of `Error('Validation error: …')`.
+
+## Development
+
+```bash
+npm run check        # lint, typecheck, build and test, as CI does
+npm run format       # biome: format and fix lint issues
+npm test             # vitest
+npm run smoke        # build, then call every endpoint on the live API with strict validation
+npm run spec:update  # refresh spec/openapi.json from the live API
 ```
 
-Gets a list of all Patrons
-```js
-@returns List of patrons uuids
+`test/spec.test.ts` compares `src/endpoints.ts` with `spec/openapi.json`, so after
+`npm run spec:update` the tests list any endpoint the API added or removed. `npm run smoke` is
+the check for response shapes drifting; it is not in CI because it depends on the API being up.
 
-manacubeClient.getPatrons()
-```
+### Releasing
 
-Get a list of all patron+
-```js
-@returns List of patrons uuids
-
-manacubeClient.getPatronPlus()
-```
-
-Get player levels
-
-```js
-@param uuid UUID of player to get stats for
-@returns Get a single players stats
-manacubeClient.getPlayerLevels(uuid)
-
-```
-
-Get Top Guilds
-
-```js
-@param total Total amount of guilds to get
-@returns Get a list of x guilds stats
-
-manacubeClient.getTopGuilds(total)
-```
-
-Get players guilds
-
-```js
-@param uuid UUID of player to get stats for
-@returns Get a single players stats
-
-manacubeClient.getPlayerGuild(uuid)
-```
-
-Get Users Friends List
-
-```js
-@param uuid UUID of player to get stats for
-@returns Get a single players friend list
-
-manacubeClient.getUserFriends(uuid)
-```
-
-Gets Factions Placeholders
-
-```js
-@param season Factions Season payouts to get stats for
-@returns Get a list of factions season payouts
-
-manacubeClient.getFactionsSeasonPayouts(season)
-```
-
-Get factions Grace Placeholders
-
-```js
-@param placeholder placeholder
-@returns placeholder
-
-getGracePlaceholder(placeholder)
-
-```
-
-Get Players cubit balance
-
-```js
-@param uuid UUID of player to get stats for
-@returns Get a single players cubit stats
-
-getPlayersCubitBalance(uuid)
-```
-
-### Auctions
-
-All three auction endpoints return an `auctionPage`:
-`{ lastUpdated, auctions: auctionItem[], full, finalized }`.
-
-Pages are **1-indexed** (page `0` is rejected). The API declares `page`/`totalPages`/
-`totalAuctions` but marks them `writeOnly` and never sends them, so there is no page count —
-follow `full` instead: a `full` page means another page may follow.
-
-A page past the end comes back as a `200` with an empty body, which is normalised into an empty
-page (`auctions: []`). The API also returns an empty body *intermittently* for pages that do have
-data, so retry an empty page before treating it as the end of the data.
-
-Get a page of active auctions
-
-```js
-@param gamemode Gamemode to get auctions for
-@param page Page number, starting at 1
-@returns A page of currently active auctions
-
-manacubeClient.getActiveAuctions(gamemode, page)
-```
-
-Get a page of recently ended auctions
-
-```js
-@param gamemode Gamemode to get auctions for
-@param page Page number, starting at 1
-@returns A page of recently ended auctions
-
-manacubeClient.getRecentlyEndedAuctions(gamemode, page)
-```
-
-Note this is a short rolling window of the most recently ended auctions, not an archive — poll it
-regularly if you want history.
-
-Get a page of a player's auctions
-
-```js
-@param uuid UUID of the player
-@param gamemode Gamemode to get auctions for
-@param page Page number, starting at 1
-@returns A page of auctions created by that player, ordered by creation date
-
-manacubeClient.getPlayerAuctions(uuid, gamemode, page)
-```
-
-Collect every page in one call
-
-```js
-@param gamemode Gamemode to get auctions for
-@param maxPages Safety stop, defaults to 50
-@returns Every auction across all pages
-
-manacubeClient.getAllActiveAuctions(gamemode, maxPages)
-manacubeClient.getAllPlayerAuctions(uuid, gamemode, maxPages)
-```
+`npm run release` (or `release:minor`, `release:major`) runs `npm run check`, bumps the version,
+and pushes the commit and tag. The tag triggers `.github/workflows/publish.yml`, which checks the
+tag matches `package.json` and stages the release on npm with provenance. Nothing is public until
+you approve it with 2FA: on npmjs.com, or with `npm stage list manacube` and
+`npm stage approve <stage-id>`. Add release notes to
+[CHANGELOG.md](CHANGELOG.md) before releasing.
 
 ## :memo: License
 
-This project is under license from MIT. For more details, see the [LICENSE](LICENSE.md) file.
+This project is under license from MIT. For more details, see the [LICENSE](LICENSE) file.
 
 Made with :heart: by <a href="https://github.com/nick22985" target="_blank">nick22985</a>
 

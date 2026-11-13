@@ -1,9 +1,7 @@
 /node_modules/
-/lib/
-/lib-cjs/
 /dist/
 /coverage/
+/.sbx/
 package/
 *.tgz
-
 *.env

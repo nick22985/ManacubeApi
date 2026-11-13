@@ -1,0 +1,4333 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "ManaCube Public API",
+		"description": "# Introduction\n\nWelcome to the official ManaCube API documentation, here you will find information about endpoints that you may use to retrieve public information about ManaCube and its players.\n\nA Note: Some endpoints may require an API key, which is only given to our partners.\n\n",
+		"termsOfService": "https://manacube.com/tos/",
+		"contact": {
+			"name": "ManaCube Support",
+			"url": "https://manacube.com/support/"
+		},
+		"version": "v1",
+		"x-logo": {
+			"altText": "ManaCube Logo",
+			"url": "img/manacube-text-logo.webp"
+		}
+	},
+	"servers": [
+		{
+			"url": "https://api.manacube.com",
+			"description": "Generated server url"
+		}
+	],
+	"paths": {
+		"/api/playtime/reset/{uuid}": {
+			"post": {
+				"tags": [
+					"Playtime"
+				],
+				"summary": "Resets a player's current global playtime",
+				"description": "Resets the current global playtime of a player",
+				"operationId": "resetPlaytime",
+				"parameters": [
+					{
+						"name": "Authorization",
+						"in": "header",
+						"description": "Authorization header key",
+						"required": true,
+						"schema": {
+							"type": "String"
+						}
+					},
+					{
+						"name": "uuid",
+						"in": "path",
+						"description": "player UUID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						},
+						"example": "30f8109e-7ea7-4ae7-90f4-178bb39cfe31"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK"
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/wonders/{gamemode}": {
+			"get": {
+				"tags": [
+					"Wonders"
+				],
+				"summary": "Get the wonders and battle sessions of a gamemode",
+				"operationId": "getWonders",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the wonders",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RealmWonders"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or wonders are not published for it",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/updates": {
+			"get": {
+				"tags": [
+					"Updates"
+				],
+				"summary": "Get published ManaUpdates entries, newest first",
+				"operationId": "getUpdates",
+				"parameters": [
+					{
+						"name": "realm",
+						"in": "query",
+						"description": "Only this realm's and Global updates, e.g. Earth",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"description": "Zero-based page index",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 0
+						}
+					},
+					{
+						"name": "size",
+						"in": "query",
+						"description": "Entries per page, 1 to 100",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 20
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of updates",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Page"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/towny/{gamemode}/towns": {
+			"get": {
+				"tags": [
+					"Towny"
+				],
+				"summary": "Get every public ManaTowny town of a gamemode",
+				"operationId": "getTowns",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the towns",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TownyTowns"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/towny/{gamemode}/nations": {
+			"get": {
+				"tags": [
+					"Towny"
+				],
+				"summary": "Get every ManaTowny nation of a gamemode",
+				"operationId": "getNations",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the nations",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TownyNations"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/towny/{gamemode}/claims": {
+			"get": {
+				"tags": [
+					"Towny"
+				],
+				"summary": "Get every claimed chunk of a gamemode's public towns",
+				"operationId": "getClaims",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the claims",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TownyClaims"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/svas/{gamemode}": {
+			"get": {
+				"tags": [
+					"SVAs"
+				],
+				"summary": "Get all SVA types for a specific gamemode",
+				"operationId": "getSVAs",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved all SVA types on the specific gamemode",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ManaItem"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/svas/{gamemode}/{uuid}": {
+			"get": {
+				"tags": [
+					"SVAs"
+				],
+				"summary": "Get all SVAs that a player owns on a specific gamemode",
+				"operationId": "getSVAs_1",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "uuid",
+						"in": "path",
+						"description": "player UUID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						},
+						"example": "afa2d6be-5df5-486d-b07e-9c20a29cce04"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved all SVAs that the player owns, on the specific gamemode",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/SVAInfo"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/svas/sales/{gamemode}/{sva}": {
+			"get": {
+				"tags": [
+					"SVAs"
+				],
+				"summary": "Get sales data for a specific sva within a specific gamemode",
+				"operationId": "getSalesData",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "sva",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved sales data of a sva within a specific gamemode",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/SVAValueInfo"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/svas/circulation/{gamemode}/{sva}": {
+			"get": {
+				"tags": [
+					"SVAs"
+				],
+				"summary": "Get total circulation of a specific sva within a specific gamemode",
+				"operationId": "getCirculation",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "sva",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved total circulation of sva within gamemode",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "number <integer>"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/shops/{gamemode}": {
+			"get": {
+				"tags": [
+					"Shops"
+				],
+				"summary": "Get a gamemode's player shops, ordered by id",
+				"operationId": "getShops",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"description": "Zero-based page index",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 0
+						}
+					},
+					{
+						"name": "size",
+						"in": "query",
+						"description": "Entries per page, 1 to 1000",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 1000
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of shops",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Page"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "A bad page or size",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or has no player shops",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/shops/{gamemode}/trades": {
+			"get": {
+				"tags": [
+					"Shops"
+				],
+				"summary": "Get a gamemode's player shop trades, newest first",
+				"operationId": "getTrades",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "shop",
+						"in": "query",
+						"description": "Only this shop's trades",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"description": "Zero-based page index",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 0
+						}
+					},
+					{
+						"name": "size",
+						"in": "query",
+						"description": "Entries per page, 1 to 100",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 50
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of trades",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Page"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "A bad page or size",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or has no player shop trades",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/recruit/{gamemode}": {
+			"get": {
+				"tags": [
+					"Recruit"
+				],
+				"summary": "Get the recruiting towns and listed nomads of a gamemode",
+				"operationId": "getRecruit",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the listings",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RealmRecruit"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or has no towny database",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/rankings/{gamemode}": {
+			"get": {
+				"tags": [
+					"Rankings"
+				],
+				"summary": "Get the top entries of some of a gamemode's boards",
+				"operationId": "getRankings",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "board",
+						"in": "query",
+						"description": "Board ids, {type}_{stat}_{length}, up to 20",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "Entries per board, 1 to 100",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32",
+							"default": 100
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the boards",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RealmRankings"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "No board given, too many, an unknown board or a bad limit",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or has no rankings",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/rankings/{gamemode}/boards": {
+			"get": {
+				"tags": [
+					"Rankings"
+				],
+				"summary": "List the boards a gamemode has",
+				"operationId": "getBoards",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the board ids",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RankingBoardIds"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or has no rankings",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/policy/{gamemode}": {
+			"get": {
+				"tags": [
+					"Policies"
+				],
+				"summary": "Get the active policy, the open vote and past policies of a gamemode",
+				"operationId": "getPolicy",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the gamemode's policies",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RealmPolicy"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or has no policies",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/players": {
+			"get": {
+				"tags": [
+					"Players"
+				],
+				"summary": "Get the names and ranks of up to 100 players",
+				"operationId": "getPlayers",
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "query",
+						"description": "Player UUIDs, repeated",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "One entry per UUID; unknown players have null name and rank",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PlayerIdentities"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "No UUID, too many, or one that isn't a UUID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/patrons/uuids": {
+			"get": {
+				"tags": [
+					"Patrons"
+				],
+				"summary": "Get the player uuids of all patron and patron+ players",
+				"operationId": "getPatronUUIDs",
+				"responses": {
+					"200": {
+						"description": "Retrieved the patrons, in order of most to least spent",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"type": "string",
+										"format": "uuid"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/patrons/patronsplus": {
+			"get": {
+				"tags": [
+					"Patrons"
+				],
+				"summary": "Get the names and uuid's of all Patron+ players",
+				"operationId": "getPatronsPlus",
+				"responses": {
+					"200": {
+						"description": "Retrieved the patrons plus, in order of most to least spent",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PlayerInfo"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/patrons/patrons": {
+			"get": {
+				"tags": [
+					"Patrons"
+				],
+				"summary": "Get the names and uuid's of all Patron players",
+				"operationId": "getPatrons",
+				"responses": {
+					"200": {
+						"description": "Retrieved the patrons, in order of most to least spent",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PlayerInfo"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/manalevel/{uuid}": {
+			"get": {
+				"tags": [
+					"Levels"
+				],
+				"summary": "Get the level data for a specific player",
+				"operationId": "getManaLevelInfo",
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"description": "player UUID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						},
+						"example": "afa2d6be-5df5-486d-b07e-9c20a29cce04"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the level data for a specific player",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ManaLevelUser"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested player not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PlayerNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/manaeconomy/prices/{gamemode}": {
+			"get": {
+				"tags": [
+					"Economy"
+				],
+				"summary": "Get the current sell prices from a gamemode's economy",
+				"operationId": "getCurrentPrices",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved current sell prices for a current gamemode ",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ManaEconomyPriceEntry"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/manaeconomy/history/volume/{gamemode}/{page}": {
+			"get": {
+				"tags": [
+					"Economy"
+				],
+				"summary": "Get the volume history of a gamemode's economy",
+				"operationId": "getVolumeHistory",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of volume history for a specific gamemode ordered from newest to oldest ",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ManaEconomyVolumeEntry"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/manaeconomy/history/prices/{gamemode}/{page}": {
+			"get": {
+				"tags": [
+					"Economy"
+				],
+				"summary": "Get the sell price history of a gamemode's economy",
+				"operationId": "getPriceHistory",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of sell price history for a specific gamemode ordered from newest to oldest ",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ManaEconomyPriceEntry"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/guilds/top/{amount}": {
+			"get": {
+				"tags": [
+					"Guilds"
+				],
+				"summary": "Get the top {amount} guilds",
+				"operationId": "getGuild",
+				"parameters": [
+					{
+						"name": "amount",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Loaded the top {amount} guilds",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/Guild"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/guilds/player/{uuid}": {
+			"get": {
+				"tags": [
+					"Guilds"
+				],
+				"summary": "Get the guild of a specific player",
+				"operationId": "getGuild_1",
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"description": "player UUID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						},
+						"example": "afa2d6be-5df5-486d-b07e-9c20a29cce04"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved guild of specific player",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Guild"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested player not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PlayerNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/friends/{uuid}": {
+			"get": {
+				"tags": [
+					"Friends"
+				],
+				"summary": "Get all friends of a specific player",
+				"description": "Returns an array of the players friends. Might be empty if player has no friends or their privacy settings prevents it.",
+				"operationId": "getFriends",
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"description": "player UUID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						},
+						"example": "afa2d6be-5df5-486d-b07e-9c20a29cce04"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PlayerInfo"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested player not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PlayerNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/factions/placeholder/{placeholder}": {
+			"get": {
+				"tags": [
+					"Factions"
+				],
+				"summary": "Get the value of a specific grace placeholder",
+				"description": "Retrieves the grace placeholder value",
+				"operationId": "getPlaceholder",
+				"parameters": [
+					{
+						"name": "placeholder",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				},
+				"deprecated": true
+			}
+		},
+		"/api/factions/payouts/{season}": {
+			"get": {
+				"tags": [
+					"Factions"
+				],
+				"summary": "Get the payouts of a specific factions season",
+				"operationId": "getPayouts",
+				"parameters": [
+					{
+						"name": "season",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Loaded all payouts for a specific season",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PayoutInfo"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				},
+				"deprecated": true
+			}
+		},
+		"/api/events/{gamemode}": {
+			"get": {
+				"tags": [
+					"Events"
+				],
+				"summary": "Get the upcoming events of a gamemode",
+				"operationId": "getEvents",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"description": "Gamemode, e.g. earth",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved the events",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RealmEvents"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Gamemode not found or events are not published for it",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/cubits/{uuid}": {
+			"get": {
+				"tags": [
+					"Cubits"
+				],
+				"summary": "Get a player's cubit balance",
+				"description": "Retrieves the cubit balance of one player as a double",
+				"operationId": "getCubits",
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"description": "player UUID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						},
+						"example": "30f8109e-7ea7-4ae7-90f4-178bb39cfe31"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "Double",
+									"description": "Cubit balance of one player as a double",
+									"example": 123.45
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested player not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PlayerNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auctions/player/{uuid}/{gamemode}/{page}": {
+			"get": {
+				"tags": [
+					"Auctions"
+				],
+				"summary": "Get a page of auctions made by a specific player",
+				"operationId": "getPlayerAuctionsPage",
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					},
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of auctions made by a specific player, ordered by creation date",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuctionPage"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested player not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PlayerNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auctions/ended/{gamemode}/{page}": {
+			"get": {
+				"tags": [
+					"Auctions"
+				],
+				"summary": "Get a page of recently ended auctions",
+				"operationId": "getRecentlyEndedAuctionsPage",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of recently ended auctions, ordered by creation date",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuctionPage"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auctions/active/{gamemode}/{page}": {
+			"get": {
+				"tags": [
+					"Auctions"
+				],
+				"summary": "Get a page of active auctions",
+				"operationId": "getActiveAuctionsPage",
+				"parameters": [
+					{
+						"name": "gamemode",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Retrieved a page of active auctions, ordered by creation date",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuctionPage"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid API Key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "You may not access this page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Requested gamemode not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GamemodeNotFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/APIError"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"GamemodeNotFoundError": {
+				"type": "object",
+				"properties": {
+					"timestamp": {
+						"type": "string",
+						"description": "timestamp of the error, seconds since unix epoch",
+						"example": "1658551020"
+					},
+					"status": {
+						"type": "string",
+						"description": "HTTP Status code",
+						"example": "XXX Error"
+					},
+					"path": {
+						"type": "string",
+						"description": "api endpoint that was used",
+						"example": "/api/../.."
+					},
+					"exception": {
+						"type": "string",
+						"description": "application error",
+						"example": "Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; nested exception is java.lang.IllegalArgumentException: Invalid UUID string"
+					},
+					"message": {
+						"type": "string",
+						"description": "human readable help message that explains the error",
+						"example": "Failed to convert your path variables to their proper data types. Please ensure that they are valid and of the right types."
+					},
+					"gamemode": {
+						"type": "string",
+						"description": "one of Manacube's gamemodes (survival, skyblock, olympus, parkour, islands, earth, kitpvp, lifesteal)",
+						"example": "survival"
+					},
+					"validGamemodes": {
+						"type": "string"
+					}
+				}
+			},
+			"PlayerNotFoundError": {
+				"type": "object",
+				"properties": {
+					"timestamp": {
+						"type": "string",
+						"description": "timestamp of the error, seconds since unix epoch",
+						"example": "1658551020"
+					},
+					"status": {
+						"type": "string",
+						"description": "HTTP Status code",
+						"example": "XXX Error"
+					},
+					"path": {
+						"type": "string",
+						"description": "api endpoint that was used",
+						"example": "/api/../.."
+					},
+					"exception": {
+						"type": "string",
+						"description": "application error",
+						"example": "Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; nested exception is java.lang.IllegalArgumentException: Invalid UUID string"
+					},
+					"message": {
+						"type": "string",
+						"description": "human readable help message that explains the error",
+						"example": "Failed to convert your path variables to their proper data types. Please ensure that they are valid and of the right types."
+					},
+					"userID": {
+						"type": "string",
+						"description": "identifier for a player that was queried. Can be uuid or name",
+						"example": "afa2d6be-5df5-486d-b07e-9c20a29cce04"
+					}
+				}
+			},
+			"APIError": {
+				"type": "object",
+				"properties": {
+					"timestamp": {
+						"type": "string",
+						"description": "timestamp of the error, seconds since unix epoch",
+						"example": "1658551020"
+					},
+					"status": {
+						"type": "string",
+						"description": "HTTP Status code",
+						"example": "XXX Error"
+					},
+					"path": {
+						"type": "string",
+						"description": "api endpoint that was used",
+						"example": "/api/../.."
+					},
+					"exception": {
+						"type": "string",
+						"description": "application error",
+						"example": "Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; nested exception is java.lang.IllegalArgumentException: Invalid UUID string"
+					},
+					"message": {
+						"type": "string",
+						"description": "human readable help message that explains the error",
+						"example": "Failed to convert your path variables to their proper data types. Please ensure that they are valid and of the right types."
+					}
+				}
+			},
+			"RealmWonders": {
+				"type": "object",
+				"properties": {
+					"wonders": {
+						"type": "array",
+						"description": "Every wonder, by name",
+						"items": {
+							"$ref": "#/components/schemas/WonderInfo"
+						}
+					},
+					"sessions": {
+						"type": "array",
+						"description": "Weekly battle sessions, soonest first. Which wonders run in a session is picked per server and not published.",
+						"items": {
+							"$ref": "#/components/schemas/WonderSession"
+						}
+					},
+					"observedAt": {
+						"type": "string",
+						"description": "When this was read, ISO-8601 UTC",
+						"example": "2026-10-04T12:00:00Z"
+					}
+				}
+			},
+			"WonderInfo": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Wonder model id",
+						"example": "colosseum"
+					},
+					"name": {
+						"type": "string",
+						"description": "Display name in plain text",
+						"example": "Colosseum"
+					},
+					"server": {
+						"type": "string",
+						"description": "Server the wonder is on",
+						"example": "earth1"
+					},
+					"world": {
+						"type": "string",
+						"description": "World the wonder is in",
+						"example": "world"
+					},
+					"x": {
+						"type": "number",
+						"format": "double",
+						"description": "Core block x",
+						"example": 1200
+					},
+					"y": {
+						"type": "number",
+						"format": "double",
+						"description": "Core block y",
+						"example": 70
+					},
+					"z": {
+						"type": "number",
+						"format": "double",
+						"description": "Core block z",
+						"example": -340
+					},
+					"runTimeSeconds": {
+						"type": "integer",
+						"format": "int64",
+						"description": "Battle length in seconds, without overtime",
+						"example": 3600
+					},
+					"winNationPayout": {
+						"type": "number",
+						"format": "double",
+						"description": "Money paid to the winning nation",
+						"example": 50000
+					},
+					"holdingNationPayout": {
+						"type": "number",
+						"format": "double",
+						"description": "Money paid to the holding nation",
+						"example": 0
+					},
+					"holderNationId": {
+						"type": "string",
+						"description": "UUID of the nation holding it, or null"
+					},
+					"heldSince": {
+						"type": "string",
+						"description": "When the holder captured it, ISO-8601 UTC, or null",
+						"example": "2026-10-03T19:00:00Z"
+					}
+				}
+			},
+			"WonderSession": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Session id, day and local start time",
+						"example": "SATURDAY-18:00"
+					},
+					"dayOfWeek": {
+						"type": "string",
+						"description": "Day of the week in the server's zone",
+						"example": "SATURDAY"
+					},
+					"startTime": {
+						"type": "string",
+						"description": "Local start time in the server's zone",
+						"example": "18:00"
+					},
+					"zone": {
+						"type": "string",
+						"description": "The server's time zone",
+						"example": "America/New_York"
+					},
+					"startsAt": {
+						"type": "string",
+						"description": "The running or next start, ISO-8601 UTC",
+						"example": "2026-10-03T22:00:00Z"
+					},
+					"endsAt": {
+						"type": "string",
+						"description": "Start plus the longest wonder run time, ISO-8601 UTC",
+						"example": "2026-10-03T23:00:00Z"
+					}
+				}
+			},
+			"Page": {
+				"type": "object",
+				"properties": {
+					"items": {
+						"type": "array",
+						"description": "The entries on this page",
+						"items": {}
+					},
+					"page": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Zero-based page index",
+						"example": 0
+					},
+					"hasMore": {
+						"type": "boolean",
+						"description": "Whether another page follows this one",
+						"example": true
+					}
+				}
+			},
+			"TownyMember": {
+				"type": "object",
+				"properties": {
+					"uuid": {
+						"type": "string",
+						"description": "Player UUID"
+					},
+					"name": {
+						"type": "string",
+						"description": "Last known player name",
+						"example": "Example"
+					},
+					"role": {
+						"type": "string",
+						"description": "Town role",
+						"example": "MAYOR"
+					},
+					"online": {
+						"type": "boolean",
+						"description": "Whether ManaTowny marks the player online"
+					}
+				}
+			},
+			"TownyPlayerRef": {
+				"type": "object",
+				"properties": {
+					"uuid": {
+						"type": "string",
+						"description": "Player UUID"
+					},
+					"name": {
+						"type": "string",
+						"description": "Last known player name",
+						"example": "Example"
+					}
+				}
+			},
+			"TownyPoint": {
+				"type": "object",
+				"properties": {
+					"x": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Block x",
+						"example": 100
+					},
+					"z": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Block z",
+						"example": -200
+					}
+				}
+			},
+			"TownyTown": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "ManaTowny party UUID"
+					},
+					"name": {
+						"type": "string",
+						"description": "Town name",
+						"example": "Exampletown"
+					},
+					"description": {
+						"type": "string",
+						"description": "Town description, may contain & colour codes"
+					},
+					"type": {
+						"type": "string",
+						"description": "ManaTowny classification id",
+						"example": "exampletown"
+					},
+					"level": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Town level",
+						"example": 10
+					},
+					"nationId": {
+						"type": "string",
+						"description": "UUID of the nation the town belongs to, or null"
+					},
+					"capital": {
+						"type": "boolean",
+						"description": "Whether the town is its nation's capital"
+					},
+					"mayor": {
+						"$ref": "#/components/schemas/TownyPlayerRef",
+						"description": "The town's mayor, or null"
+					},
+					"members": {
+						"type": "array",
+						"description": "Members, highest role first",
+						"items": {
+							"$ref": "#/components/schemas/TownyMember"
+						}
+					},
+					"onlineMembers": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Members ManaTowny marks online",
+						"example": 2
+					},
+					"foundedAt": {
+						"type": "string",
+						"description": "When the town was founded, ISO-8601 UTC",
+						"example": "2026-01-01T00:00:00Z"
+					},
+					"bank": {
+						"type": "number",
+						"format": "double",
+						"description": "Town bank balance",
+						"example": 1000
+					},
+					"open": {
+						"type": "boolean",
+						"description": "Anyone may join without an invite"
+					},
+					"peaceful": {
+						"type": "boolean",
+						"description": "Peaceful town"
+					},
+					"pvp": {
+						"type": "boolean",
+						"description": "PvP enabled inside the town"
+					},
+					"likes": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Like count",
+						"example": 5
+					},
+					"visitors": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Unique visitor count",
+						"example": 50
+					},
+					"home": {
+						"$ref": "#/components/schemas/TownyPoint",
+						"description": "Town home location, or null"
+					},
+					"warps": {
+						"type": "array",
+						"description": "Public warps",
+						"items": {
+							"$ref": "#/components/schemas/TownyWarp"
+						}
+					},
+					"ruinedAt": {
+						"type": "string",
+						"description": "When the town fell to ruin, ISO-8601 UTC, or null"
+					}
+				}
+			},
+			"TownyTowns": {
+				"type": "object",
+				"properties": {
+					"revision": {
+						"type": "string",
+						"description": "Changes whenever the towny data does",
+						"example": "1a2b3c4d-1"
+					},
+					"towns": {
+						"type": "array",
+						"description": "All public towns",
+						"items": {
+							"$ref": "#/components/schemas/TownyTown"
+						}
+					}
+				}
+			},
+			"TownyWarp": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string",
+						"description": "Warp name",
+						"example": "shop"
+					},
+					"likes": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Like count, null when ManaTowny does not track warp likes",
+						"example": 1
+					},
+					"visitors": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Unique visitor count, null when not tracked",
+						"example": 10
+					}
+				}
+			},
+			"TownyNation": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "ManaTowny nation UUID"
+					},
+					"name": {
+						"type": "string",
+						"description": "Nation name",
+						"example": "Examplenation"
+					},
+					"type": {
+						"type": "string",
+						"description": "ManaTowny classification id",
+						"example": "examplenation"
+					},
+					"capitalTownId": {
+						"type": "string",
+						"description": "UUID of the capital town"
+					},
+					"leader": {
+						"$ref": "#/components/schemas/TownyPlayerRef",
+						"description": "The nation's king, or null"
+					},
+					"townIds": {
+						"type": "array",
+						"description": "Member town UUIDs",
+						"items": {
+							"type": "string"
+						}
+					},
+					"allyIds": {
+						"type": "array",
+						"description": "Allied nation UUIDs",
+						"items": {
+							"type": "string"
+						}
+					},
+					"enemyIds": {
+						"type": "array",
+						"description": "Enemy nation UUIDs",
+						"items": {
+							"type": "string"
+						}
+					},
+					"occupiedTownIds": {
+						"type": "array",
+						"description": "Occupied town UUIDs",
+						"items": {
+							"type": "string"
+						}
+					},
+					"open": {
+						"type": "boolean",
+						"description": "Anyone may join without an invite"
+					},
+					"bank": {
+						"type": "number",
+						"format": "double",
+						"description": "Nation bank balance",
+						"example": 0
+					}
+				}
+			},
+			"TownyNations": {
+				"type": "object",
+				"properties": {
+					"revision": {
+						"type": "string",
+						"description": "Changes whenever the towny data does",
+						"example": "1a2b3c4d-1"
+					},
+					"nations": {
+						"type": "array",
+						"description": "All nations",
+						"items": {
+							"$ref": "#/components/schemas/TownyNation"
+						}
+					}
+				}
+			},
+			"TownyClaim": {
+				"type": "object",
+				"properties": {
+					"townId": {
+						"type": "string",
+						"description": "UUID of the owning town"
+					},
+					"x": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Chunk x",
+						"example": 6
+					},
+					"z": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Chunk z",
+						"example": -13
+					},
+					"outpost": {
+						"type": "boolean",
+						"description": "Outpost claim"
+					},
+					"home": {
+						"type": "boolean",
+						"description": "The town's home claim"
+					}
+				}
+			},
+			"TownyClaims": {
+				"type": "object",
+				"properties": {
+					"revision": {
+						"type": "string",
+						"description": "Changes whenever the towny data does",
+						"example": "1a2b3c4d-1"
+					},
+					"claims": {
+						"type": "array",
+						"description": "Claimed chunks of public towns on this gamemode's servers and worlds",
+						"items": {
+							"$ref": "#/components/schemas/TownyClaim"
+						}
+					}
+				}
+			},
+			"ManaItem": {
+				"type": "object",
+				"properties": {
+					"itemType": {
+						"type": "string"
+					},
+					"slot": {
+						"type": "string"
+					},
+					"version": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"circulation": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"material": {
+						"type": "string"
+					},
+					"durability": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"displayName": {
+						"type": "string"
+					},
+					"lore": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"enchants": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					"customModelData": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"itemModel": {
+						"type": "string"
+					},
+					"unbreakable": {
+						"type": "boolean"
+					},
+					"leatherColor": {
+						"type": "object",
+						"properties": {
+							"red": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"green": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"blue": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"colorSpace": {
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"numComponents": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"cs_sRGB": {
+										"type": "boolean"
+									}
+								}
+							},
+							"rgb": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"transparency": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"alpha": {
+								"type": "integer",
+								"format": "int32"
+							}
+						}
+					}
+				}
+			},
+			"SVAInfo": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"itemType": {
+						"type": "string"
+					},
+					"originalOwner": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"owner": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"obtainTime": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"customModelData": {
+						"type": "integer",
+						"format": "int32"
+					}
+				}
+			},
+			"SVAValueInfo": {
+				"type": "object",
+				"properties": {
+					"currency": {
+						"type": "string"
+					},
+					"averageValue": {
+						"type": "number",
+						"format": "double"
+					},
+					"timesSold": {
+						"type": "integer",
+						"format": "int32"
+					}
+				}
+			},
+			"RealmRecruit": {
+				"type": "object",
+				"properties": {
+					"towns": {
+						"type": "array",
+						"description": "Towns listed as recruiting, by name",
+						"items": {
+							"$ref": "#/components/schemas/RecruitTown"
+						}
+					},
+					"nomads": {
+						"type": "array",
+						"description": "Townless players listed as looking for a town, online first",
+						"items": {
+							"$ref": "#/components/schemas/RecruitNomad"
+						}
+					},
+					"observedAt": {
+						"type": "string",
+						"description": "When the listings and online flags were read, ISO-8601 UTC",
+						"example": "2026-10-01T18:00:00Z"
+					}
+				}
+			},
+			"RecruitNomad": {
+				"type": "object",
+				"properties": {
+					"uuid": {
+						"type": "string",
+						"description": "Player UUID"
+					},
+					"name": {
+						"type": "string",
+						"description": "Player name when the listing was last saved",
+						"example": "Example"
+					},
+					"networkLevel": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Network level, or null when unknown",
+						"example": 120
+					},
+					"interests": {
+						"type": "array",
+						"description": "Interests the player picked in game",
+						"example": [
+							"Farming"
+						],
+						"items": {
+							"type": "string"
+						}
+					},
+					"timezone": {
+						"type": "string",
+						"description": "Time zone the player picked in game, or null",
+						"example": "EST"
+					},
+					"online": {
+						"type": "boolean",
+						"description": "Whether ManaTowny marks the player online, or null when unknown"
+					},
+					"lastSeen": {
+						"type": "string",
+						"description": "When ManaTowny last saw the player (ISO-8601 UTC), or null when unknown",
+						"example": "2026-10-01T18:00:00Z"
+					}
+				}
+			},
+			"RecruitTown": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "ManaTowny party UUID"
+					},
+					"name": {
+						"type": "string",
+						"description": "Town name",
+						"example": "Exampletown"
+					},
+					"nationId": {
+						"type": "string",
+						"description": "UUID of the town's nation, or null"
+					},
+					"nationName": {
+						"type": "string",
+						"description": "Name of the town's nation, or null",
+						"example": "Examplenation"
+					},
+					"mayor": {
+						"$ref": "#/components/schemas/TownyPlayerRef",
+						"description": "The town's mayor, or null"
+					},
+					"residents": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Town members",
+						"example": 12
+					},
+					"level": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Town level, or null",
+						"example": 10
+					},
+					"description": {
+						"type": "string",
+						"description": "The listing's description without colour codes, or null"
+					},
+					"interests": {
+						"type": "array",
+						"description": "Interests the town picked in game",
+						"example": [
+							"Building"
+						],
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"RankingBoard": {
+				"type": "object",
+				"description": "One ManaRankings leaderboard, top entries first",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Board id, {type}_{stat}_{length}",
+						"example": "player_balances_monthly"
+					},
+					"type": {
+						"type": "string",
+						"description": "player or party (a ManaTowny town)"
+					},
+					"stat": {
+						"type": "string",
+						"description": "ManaRankings statistic database name",
+						"example": "balances"
+					},
+					"length": {
+						"type": "string",
+						"description": "alltime, monthly, weekly or daily"
+					},
+					"periodStart": {
+						"type": "string",
+						"description": "Start of the period the board was read in, ISO-8601; null for alltime"
+					},
+					"periodEnd": {
+						"type": "string",
+						"description": "End of the period the board was read in, ISO-8601; null for alltime"
+					},
+					"entries": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/RankingEntry"
+						}
+					}
+				}
+			},
+			"RankingEntry": {
+				"type": "object",
+				"description": "One ranked player or town",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Player UUID, or ManaTowny town UUID for party boards"
+					},
+					"name": {
+						"type": "string",
+						"description": "Name when the ranking was last calculated"
+					},
+					"value": {
+						"type": "number",
+						"format": "double",
+						"description": "Statistic value"
+					},
+					"position": {
+						"type": "integer",
+						"format": "int64",
+						"description": "Position, 1 is first"
+					}
+				}
+			},
+			"RealmRankings": {
+				"type": "object",
+				"description": "The requested ManaRankings boards of a gamemode",
+				"properties": {
+					"boards": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/RankingBoard"
+						}
+					},
+					"observedAt": {
+						"type": "string",
+						"description": "When the boards were read, ISO-8601"
+					}
+				}
+			},
+			"RankingBoardIds": {
+				"type": "object",
+				"description": "The boards a gamemode has, as {type}_{stat}_{length} ids",
+				"properties": {
+					"boards": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"PolicyChoice": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Policy id, buff|debuff",
+						"example": "v2:MCMMO:mcmmo-1|v2:FISH_RARITY:fish-rarity-1"
+					},
+					"buff": {
+						"$ref": "#/components/schemas/PolicyOption",
+						"description": "The buff half"
+					},
+					"debuff": {
+						"$ref": "#/components/schemas/PolicyOption",
+						"description": "The debuff half"
+					},
+					"nationVotes": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Nations whose members mostly picked it; a nation tied at the top backs none",
+						"example": 7
+					},
+					"playerVotes": {
+						"type": "integer",
+						"format": "int32",
+						"description": "Players who picked it",
+						"example": 64
+					}
+				}
+			},
+			"PolicyOption": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "One half of a policy id",
+						"example": "v2:MCMMO:mcmmo-0"
+					},
+					"kind": {
+						"type": "string",
+						"description": "buff or debuff",
+						"enum": [
+							"buff",
+							"debuff"
+						]
+					},
+					"name": {
+						"type": "string",
+						"description": "Policy type name, or null until the plugin's catalog arrives",
+						"example": "MCMMO"
+					},
+					"description": {
+						"type": "string",
+						"description": "Effect text without colour codes, or null until the catalog arrives"
+					},
+					"percent": {
+						"type": "number",
+						"format": "double",
+						"description": "Signed effect size from the plugin config, or null",
+						"example": -10
+					}
+				}
+			},
+			"PolicyTerm": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Policy id, buff|debuff",
+						"example": "v2:MCMMO:mcmmo-1|v2:FISH_RARITY:fish-rarity-1"
+					},
+					"buff": {
+						"$ref": "#/components/schemas/PolicyOption",
+						"description": "The buff half"
+					},
+					"debuff": {
+						"$ref": "#/components/schemas/PolicyOption",
+						"description": "The debuff half"
+					},
+					"nationVotes": {
+						"type": "integer",
+						"format": "int64",
+						"description": "Nations that voted for it",
+						"example": 9
+					},
+					"startedAt": {
+						"type": "string",
+						"description": "When it took effect, ISO-8601 UTC, or null for terms before history was recorded",
+						"example": "2026-09-28T04:00:00Z"
+					},
+					"endsAt": {
+						"type": "string",
+						"description": "When it ends (active) or ended, ISO-8601 UTC",
+						"example": "2026-10-05T04:00:00Z"
+					}
+				}
+			},
+			"PolicyVote": {
+				"type": "object",
+				"properties": {
+					"closesAt": {
+						"type": "string",
+						"description": "When the vote closes (the next rollover), ISO-8601 UTC",
+						"example": "2026-10-05T04:00:00Z"
+					},
+					"options": {
+						"type": "array",
+						"description": "This week's choices, in the plugin's order",
+						"items": {
+							"$ref": "#/components/schemas/PolicyChoice"
+						}
+					}
+				}
+			},
+			"RealmPolicy": {
+				"type": "object",
+				"properties": {
+					"active": {
+						"$ref": "#/components/schemas/PolicyTerm",
+						"description": "The policy in effect, or null before the first rollover"
+					},
+					"vote": {
+						"$ref": "#/components/schemas/PolicyVote",
+						"description": "The open vote"
+					},
+					"history": {
+						"type": "array",
+						"description": "Past policies, newest first",
+						"items": {
+							"$ref": "#/components/schemas/PolicyTerm"
+						}
+					}
+				}
+			},
+			"PlayerIdentities": {
+				"type": "object",
+				"description": "One entry per requested UUID, in request order",
+				"properties": {
+					"players": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/PlayerIdentity"
+						}
+					}
+				}
+			},
+			"PlayerIdentity": {
+				"type": "object",
+				"description": "What other players see of a player: name and ranks",
+				"properties": {
+					"uuid": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string",
+						"description": "Latest known name; null if never seen"
+					},
+					"rank": {
+						"type": "string",
+						"description": "Highest group on the LuckPerms donator track; null if none",
+						"example": "mvp+"
+					},
+					"staffRank": {
+						"type": "string",
+						"description": "Highest of the configured staff groups; null if not staff",
+						"example": "mod"
+					},
+					"manaPlus": {
+						"type": "string",
+						"description": "Mana+ tier from the LuckPerms Mana+ track; null if none",
+						"example": "gold"
+					},
+					"patron": {
+						"type": "string",
+						"description": "patron or patron+ from total store spend; null if neither",
+						"example": "patron+"
+					}
+				}
+			},
+			"PlayerInfo": {
+				"type": "object",
+				"properties": {
+					"uuid": {
+						"type": "string",
+						"format": "uuid",
+						"description": "ID of the player",
+						"example": "afa2d6be-5df5-486d-b07e-9c20a29cce04"
+					},
+					"name": {
+						"type": "string",
+						"description": "Name of the player",
+						"example": "Steve"
+					}
+				}
+			},
+			"ManaLevelStatistic": {
+				"type": "object",
+				"properties": {
+					"key": {
+						"type": "string"
+					},
+					"value": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"progression": {
+						"type": "number",
+						"format": "double"
+					}
+				}
+			},
+			"ManaLevelUser": {
+				"type": "object",
+				"properties": {
+					"uuid": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"totalExp": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"stats": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/ManaLevelStatistic"
+						}
+					}
+				}
+			},
+			"ManaEconomyPriceEntry": {
+				"type": "object",
+				"properties": {
+					"time": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"shopID": {
+						"type": "string"
+					},
+					"itemID": {
+						"type": "string"
+					},
+					"newPrice": {
+						"type": "number",
+						"format": "double"
+					},
+					"oldPrice": {
+						"type": "number",
+						"format": "double"
+					},
+					"basePrice": {
+						"type": "number",
+						"format": "double"
+					},
+					"item": {
+						"type": "string"
+					},
+					"periodMS": {
+						"type": "integer",
+						"format": "int64"
+					}
+				}
+			},
+			"ManaEconomyVolumeEntry": {
+				"type": "object",
+				"properties": {
+					"time": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"shopID": {
+						"type": "string"
+					},
+					"itemID": {
+						"type": "string"
+					},
+					"volume": {
+						"type": "number",
+						"format": "double"
+					},
+					"item": {
+						"type": "string"
+					},
+					"periodMS": {
+						"type": "integer",
+						"format": "int64"
+					}
+				}
+			},
+			"Guild": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"tag": {
+						"type": "string"
+					},
+					"createDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"rank": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"level": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"description": {
+						"type": "string"
+					},
+					"homeServer": {
+						"type": "string"
+					},
+					"members": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/GuildMember"
+						}
+					}
+				}
+			},
+			"GuildMember": {
+				"type": "object",
+				"properties": {
+					"uuid": {
+						"type": "string",
+						"format": "uuid",
+						"description": "ID of the player",
+						"example": "afa2d6be-5df5-486d-b07e-9c20a29cce04"
+					},
+					"name": {
+						"type": "string",
+						"description": "Name of the player",
+						"example": "Steve"
+					},
+					"guildId": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"joinDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"rank": {
+						"type": "string"
+					}
+				}
+			},
+			"PayoutInfo": {
+				"type": "object",
+				"properties": {
+					"time": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"week": {
+						"type": "string"
+					},
+					"statistic": {
+						"type": "string"
+					},
+					"player_uuid": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"factionName": {
+						"type": "string"
+					},
+					"place": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"value": {
+						"type": "number",
+						"format": "double"
+					},
+					"payout": {
+						"type": "number",
+						"format": "double"
+					}
+				}
+			},
+			"RealmEvents": {
+				"type": "object",
+				"properties": {
+					"events": {
+						"type": "array",
+						"description": "Upcoming occurrences ManaEventsTimer saw, soonest first. End times are not known.",
+						"items": {
+							"$ref": "#/components/schemas/UpcomingEvent"
+						}
+					}
+				}
+			},
+			"UpcomingEvent": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Stable id: source, start and name",
+						"example": "KoTH@2026-10-04T18:00:00Z@Castle"
+					},
+					"source": {
+						"type": "string",
+						"description": "The scheduling plugin",
+						"example": "KoTH"
+					},
+					"name": {
+						"type": "string",
+						"description": "The event's own name in plain text, or null when the plugin has none",
+						"example": "Castle"
+					},
+					"startsAt": {
+						"type": "string",
+						"description": "Start, ISO-8601 UTC",
+						"example": "2026-10-04T18:00:00Z"
+					}
+				}
+			},
+			"AuctionItem": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"creationTime": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"sellerUUID": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"item": {
+						"type": "string"
+					},
+					"auctionType": {
+						"type": "string",
+						"enum": [
+							"SELL",
+							"BID"
+						]
+					},
+					"economyType": {
+						"type": "string"
+					},
+					"adminAuction": {
+						"type": "boolean"
+					},
+					"price": {
+						"type": "number",
+						"format": "double"
+					},
+					"topBidderUUID": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"winnerUUID": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"ACTIVE",
+							"SOLD",
+							"CANCELLED",
+							"EXPIRED",
+							"COLLECTED",
+							"DESTROYED"
+						]
+					},
+					"expiryTime": {
+						"type": "integer",
+						"format": "int64"
+					}
+				}
+			},
+			"AuctionPage": {
+				"type": "object",
+				"properties": {
+					"page": {
+						"type": "integer",
+						"format": "int32",
+						"writeOnly": true
+					},
+					"totalPages": {
+						"type": "integer",
+						"format": "int32",
+						"writeOnly": true
+					},
+					"totalAuctions": {
+						"type": "integer",
+						"format": "int32",
+						"writeOnly": true
+					},
+					"lastUpdated": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"auctions": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/AuctionItem"
+						}
+					},
+					"full": {
+						"type": "boolean"
+					},
+					"finalized": {
+						"type": "boolean"
+					}
+				}
+			}
+		}
+	}
+}
