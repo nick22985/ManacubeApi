@@ -2,6 +2,9 @@ import { z } from 'zod';
 
 const nullable = <T extends z.ZodType>(schema: T) => schema.nullable();
 
+const object = <T extends z.core.$ZodLooseShape>(shape: T) =>
+	z.looseObject(shape) as unknown as z.ZodObject<z.core.util.Writeable<T>>;
+
 export const GAMEMODES = [
 	'survival',
 	'skyblock',
@@ -15,7 +18,7 @@ export const GAMEMODES = [
 
 export type Gamemode = (typeof GAMEMODES)[number] | (string & {});
 
-export const apiErrorBodySchema = z.looseObject({
+export const apiErrorBodySchema = object({
 	status: z.string(),
 	path: z.string(),
 	message: z.string(),
@@ -27,13 +30,22 @@ export const apiErrorBodySchema = z.looseObject({
 });
 
 export const pageSchema = <T extends z.ZodType>(item: T) =>
-	z.looseObject({
+	object({
 		items: z.array(item),
 		page: z.number(),
 		hasMore: z.boolean(),
 	});
 
-export const svaTypeSchema = z.looseObject({
+export const leatherColorSchema = object({
+	red: z.number(),
+	green: z.number(),
+	blue: z.number(),
+	alpha: z.number(),
+	rgb: z.number(),
+	transparency: z.number(),
+});
+
+export const svaTypeSchema = object({
 	itemType: z.string(),
 	slot: z.string(),
 	version: z.number(),
@@ -46,30 +58,30 @@ export const svaTypeSchema = z.looseObject({
 	customModelData: z.number(),
 	itemModel: nullable(z.string()).optional(),
 	unbreakable: z.boolean(),
-	leatherColor: z.unknown(),
+	leatherColor: nullable(leatherColorSchema),
 });
 
-export const playerSvaSchema = z.looseObject({
+export const playerSvaSchema = object({
 	id: z.number(),
 	itemType: z.string(),
 	originalOwner: z.string(),
 	owner: z.string(),
 	obtainTime: z.number(),
-	customModelData: z.number(),
+	customModelData: nullable(z.number()),
 });
 
-export const svaSaleSchema = z.looseObject({
+export const svaSaleSchema = object({
 	currency: z.string(),
 	averageValue: z.number(),
 	timesSold: z.number(),
 });
 
-export const playerInfoSchema = z.looseObject({
+export const playerInfoSchema = object({
 	uuid: z.string(),
 	name: z.string(),
 });
 
-export const playerIdentitySchema = z.looseObject({
+export const playerIdentitySchema = object({
 	uuid: z.string(),
 	name: nullable(z.string()),
 	rank: nullable(z.string()),
@@ -78,23 +90,23 @@ export const playerIdentitySchema = z.looseObject({
 	patron: nullable(z.string()),
 });
 
-export const playerIdentitiesSchema = z.looseObject({
+export const playerIdentitiesSchema = object({
 	players: z.array(playerIdentitySchema),
 });
 
-export const manaLevelStatisticSchema = z.looseObject({
+export const manaLevelStatisticSchema = object({
 	key: z.string(),
 	value: z.number(),
 	progression: z.number(),
 });
 
-export const manaLevelSchema = z.looseObject({
+export const manaLevelSchema = object({
 	uuid: z.string(),
 	totalExp: z.number(),
 	stats: z.array(manaLevelStatisticSchema),
 });
 
-export const economyPriceEntrySchema = z.looseObject({
+export const economyPriceEntrySchema = object({
 	time: z.number(),
 	shopID: z.string(),
 	itemID: z.string(),
@@ -105,7 +117,7 @@ export const economyPriceEntrySchema = z.looseObject({
 	periodMS: z.number(),
 });
 
-export const economyVolumeEntrySchema = z.looseObject({
+export const economyVolumeEntrySchema = object({
 	time: z.number(),
 	shopID: z.string(),
 	itemID: z.string(),
@@ -114,7 +126,7 @@ export const economyVolumeEntrySchema = z.looseObject({
 	periodMS: z.number(),
 });
 
-export const guildMemberSchema = z.looseObject({
+export const guildMemberSchema = object({
 	uuid: z.string(),
 	name: z.string(),
 	guildId: z.number(),
@@ -122,7 +134,7 @@ export const guildMemberSchema = z.looseObject({
 	rank: z.string(),
 });
 
-export const guildSchema = z.looseObject({
+export const guildSchema = object({
 	id: z.number(),
 	tag: z.string(),
 	createDate: z.string(),
@@ -133,7 +145,7 @@ export const guildSchema = z.looseObject({
 	members: z.array(guildMemberSchema),
 });
 
-export const factionPayoutSchema = z.looseObject({
+export const factionPayoutSchema = object({
 	time: z.number(),
 	week: z.string(),
 	statistic: z.string(),
@@ -148,7 +160,7 @@ export const auctionTypeSchema = z.enum(['SELL', 'BID']);
 
 export const auctionStatusSchema = z.enum(['ACTIVE', 'SOLD', 'CANCELLED', 'EXPIRED', 'COLLECTED', 'DESTROYED']);
 
-export const auctionItemSchema = z.looseObject({
+export const auctionItemSchema = object({
 	id: z.number(),
 	creationTime: z.number(),
 	sellerUUID: z.string(),
@@ -163,7 +175,7 @@ export const auctionItemSchema = z.looseObject({
 	expiryTime: z.number(),
 });
 
-export const auctionPageSchema = z.looseObject({
+export const auctionPageSchema = object({
 	page: z.number().optional(),
 	totalPages: z.number().optional(),
 	totalAuctions: z.number().optional(),
@@ -173,7 +185,7 @@ export const auctionPageSchema = z.looseObject({
 	finalized: z.boolean(),
 });
 
-export const shopSchema = z.looseObject({
+export const shopSchema = object({
 	id: z.number(),
 	ownerUuid: z.string(),
 	server: z.string(),
@@ -194,7 +206,7 @@ export const shopSchema = z.looseObject({
 	lastTradeAt: nullable(z.string()),
 });
 
-export const shopTradeSchema = z.looseObject({
+export const shopTradeSchema = object({
 	time: z.string(),
 	shopId: z.number(),
 	shopOwner: z.string(),
@@ -208,7 +220,7 @@ export const shopTradeSchema = z.looseObject({
 	itemName: nullable(z.string()),
 });
 
-export const updateSchema = z.looseObject({
+export const updateSchema = object({
 	id: z.number(),
 	author: z.string(),
 	categories: z.array(z.string()),
@@ -218,30 +230,30 @@ export const updateSchema = z.looseObject({
 	createdAt: z.string(),
 });
 
-export const townyPlayerRefSchema = z.looseObject({
+export const townyPlayerRefSchema = object({
 	uuid: z.string(),
 	name: nullable(z.string()),
 });
 
-export const townyMemberSchema = z.looseObject({
+export const townyMemberSchema = object({
 	uuid: z.string(),
 	name: nullable(z.string()),
 	role: z.string(),
 	online: z.boolean(),
 });
 
-export const townyPointSchema = z.looseObject({
+export const townyPointSchema = object({
 	x: z.number(),
 	z: z.number(),
 });
 
-export const townyWarpSchema = z.looseObject({
+export const townyWarpSchema = object({
 	name: z.string(),
 	likes: nullable(z.number()),
 	visitors: nullable(z.number()),
 });
 
-export const townyTownSchema = z.looseObject({
+export const townyTownSchema = object({
 	id: z.string(),
 	name: z.string(),
 	description: nullable(z.string()),
@@ -264,12 +276,12 @@ export const townyTownSchema = z.looseObject({
 	ruinedAt: nullable(z.string()),
 });
 
-export const townyTownsSchema = z.looseObject({
+export const townyTownsSchema = object({
 	revision: z.string(),
 	towns: z.array(townyTownSchema),
 });
 
-export const townyNationSchema = z.looseObject({
+export const townyNationSchema = object({
 	id: z.string(),
 	name: z.string(),
 	type: z.string(),
@@ -283,12 +295,12 @@ export const townyNationSchema = z.looseObject({
 	bank: z.number(),
 });
 
-export const townyNationsSchema = z.looseObject({
+export const townyNationsSchema = object({
 	revision: z.string(),
 	nations: z.array(townyNationSchema),
 });
 
-export const townyClaimSchema = z.looseObject({
+export const townyClaimSchema = object({
 	townId: z.string(),
 	x: z.number(),
 	z: z.number(),
@@ -296,12 +308,12 @@ export const townyClaimSchema = z.looseObject({
 	home: z.boolean(),
 });
 
-export const townyClaimsSchema = z.looseObject({
+export const townyClaimsSchema = object({
 	revision: z.string(),
 	claims: z.array(townyClaimSchema),
 });
 
-export const recruitTownSchema = z.looseObject({
+export const recruitTownSchema = object({
 	id: z.string(),
 	name: z.string(),
 	nationId: nullable(z.string()),
@@ -313,7 +325,7 @@ export const recruitTownSchema = z.looseObject({
 	interests: z.array(z.string()),
 });
 
-export const recruitNomadSchema = z.looseObject({
+export const recruitNomadSchema = object({
 	uuid: z.string(),
 	name: nullable(z.string()),
 	networkLevel: nullable(z.number()),
@@ -323,20 +335,20 @@ export const recruitNomadSchema = z.looseObject({
 	lastSeen: nullable(z.string()),
 });
 
-export const recruitSchema = z.looseObject({
+export const recruitSchema = object({
 	towns: z.array(recruitTownSchema),
 	nomads: z.array(recruitNomadSchema),
 	observedAt: z.string(),
 });
 
-export const rankingEntrySchema = z.looseObject({
+export const rankingEntrySchema = object({
 	id: z.string(),
 	name: nullable(z.string()),
 	value: z.number(),
 	position: z.number(),
 });
 
-export const rankingBoardSchema = z.looseObject({
+export const rankingBoardSchema = object({
 	id: z.string(),
 	type: z.string(),
 	stat: z.string(),
@@ -346,16 +358,16 @@ export const rankingBoardSchema = z.looseObject({
 	entries: z.array(rankingEntrySchema),
 });
 
-export const rankingsSchema = z.looseObject({
+export const rankingsSchema = object({
 	boards: z.array(rankingBoardSchema),
 	observedAt: z.string(),
 });
 
-export const rankingBoardIdsSchema = z.looseObject({
+export const rankingBoardIdsSchema = object({
 	boards: z.array(z.string()),
 });
 
-export const policyOptionSchema = z.looseObject({
+export const policyOptionSchema = object({
 	id: z.string(),
 	kind: z.enum(['buff', 'debuff']),
 	name: nullable(z.string()),
@@ -363,7 +375,7 @@ export const policyOptionSchema = z.looseObject({
 	percent: nullable(z.number()),
 });
 
-export const policyChoiceSchema = z.looseObject({
+export const policyChoiceSchema = object({
 	id: z.string(),
 	buff: policyOptionSchema,
 	debuff: policyOptionSchema,
@@ -371,7 +383,7 @@ export const policyChoiceSchema = z.looseObject({
 	playerVotes: z.number(),
 });
 
-export const policyTermSchema = z.looseObject({
+export const policyTermSchema = object({
 	id: z.string(),
 	buff: policyOptionSchema,
 	debuff: policyOptionSchema,
@@ -380,18 +392,18 @@ export const policyTermSchema = z.looseObject({
 	endsAt: z.string(),
 });
 
-export const policyVoteSchema = z.looseObject({
+export const policyVoteSchema = object({
 	closesAt: z.string(),
 	options: z.array(policyChoiceSchema),
 });
 
-export const policySchema = z.looseObject({
+export const policySchema = object({
 	active: nullable(policyTermSchema),
 	vote: nullable(policyVoteSchema),
 	history: z.array(policyTermSchema),
 });
 
-export const wonderSchema = z.looseObject({
+export const wonderSchema = object({
 	id: z.string(),
 	name: z.string(),
 	server: z.string(),
@@ -406,7 +418,7 @@ export const wonderSchema = z.looseObject({
 	heldSince: nullable(z.string()),
 });
 
-export const wonderSessionSchema = z.looseObject({
+export const wonderSessionSchema = object({
 	id: z.string(),
 	dayOfWeek: z.string(),
 	startTime: z.string(),
@@ -415,25 +427,26 @@ export const wonderSessionSchema = z.looseObject({
 	endsAt: z.string(),
 });
 
-export const wondersSchema = z.looseObject({
+export const wondersSchema = object({
 	wonders: z.array(wonderSchema),
 	sessions: z.array(wonderSessionSchema),
 	observedAt: z.string(),
 });
 
-export const upcomingEventSchema = z.looseObject({
+export const upcomingEventSchema = object({
 	id: z.string(),
 	source: z.string(),
 	name: nullable(z.string()),
 	startsAt: z.string(),
 });
 
-export const eventsSchema = z.looseObject({
+export const eventsSchema = object({
 	events: z.array(upcomingEventSchema),
 });
 
 export type ApiErrorBody = z.infer<typeof apiErrorBodySchema>;
 export type Page<T> = { items: T[]; page: number; hasMore: boolean };
+export type LeatherColor = z.infer<typeof leatherColorSchema>;
 export type SvaType = z.infer<typeof svaTypeSchema>;
 export type PlayerSva = z.infer<typeof playerSvaSchema>;
 export type SvaSale = z.infer<typeof svaSaleSchema>;

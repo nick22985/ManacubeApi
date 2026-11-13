@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.1
+
+### Fixed
+
+- Response types no longer have a `[x: string]: unknown` index signature, so frameworks that
+  serialise return types (TanStack Start server functions, for example) keep the fields. Unknown
+  fields still pass through at runtime.
+- `PlayerSva.customModelData` is `number | null`; the API returns `null` for some items.
+- `SvaType.leatherColor` is typed as `LeatherColor | null` instead of `unknown`, following the
+  `java.awt.Color` shape in the API spec. `leatherColorSchema` and `LeatherColor` are exported.
+
 ## 2.0.0
 
 A rewrite. See [Migrating from 1.x](README.md#migrating-from-1x) for the old-to-new method table.

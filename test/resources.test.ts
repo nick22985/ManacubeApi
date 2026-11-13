@@ -10,6 +10,25 @@ describe('svas', () => {
 		expect(types[0]!.circulation).toBe(34);
 	});
 
+	test('types accept a leather colour', async () => {
+		const leatherColor = { red: 160, green: 101, blue: 64, alpha: 255, rgb: -6265536, transparency: 1 };
+		const { api } = mockClient({ '/svas/survival': ok([{ ...f.svaType, leatherColor }]) });
+		expect((await api.svas.types('survival'))[0]!.leatherColor).toEqual(leatherColor);
+	});
+
+	test('player accepts a null customModelData', async () => {
+		const sva = {
+			id: 1,
+			itemType: 'bombchu',
+			originalOwner: f.UUID,
+			owner: f.UUID,
+			obtainTime: 1,
+			customModelData: null,
+		};
+		const { api } = mockClient({ [`/svas/survival/${f.UUID}`]: ok([sva]) });
+		expect((await api.svas.player(f.UUID, 'survival'))[0]!.customModelData).toBeNull();
+	});
+
 	test('player normalises an undashed uuid', async () => {
 		const { api, calls } = mockClient({ [`/svas/survival/${f.UUID}`]: ok([]) });
 		await api.svas.player(f.UUID.replaceAll('-', '').toUpperCase(), 'survival');
