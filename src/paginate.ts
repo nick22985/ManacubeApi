@@ -25,6 +25,3 @@ export async function toArray<T>(iterable: AsyncIterable<T>, limit = Infinity): 
 }
 
 export const fromPage = <T>(page: { items: T[]; hasMore: boolean }) => ({ items: page.items, more: page.hasMore });
-
-export const oneBasedPage = <P extends { page: number }>(page: P): P =>
-	typeof page?.page === 'number' ? { ...page, page: page.page + 1 } : page;

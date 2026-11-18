@@ -1,7 +1,7 @@
 import { endpoints } from '../endpoints';
 import type { RequestOptions } from '../http';
-import { nonEmpty, optionalInt, zeroBasedPage } from '../input';
-import { fromPage, type IterateOptions, oneBasedPage, paginate } from '../paginate';
+import { nonEmpty, optionalInt } from '../input';
+import { fromPage, type IterateOptions, paginate } from '../paginate';
 import {
 	type Gamemode,
 	type Page,
@@ -26,33 +26,31 @@ export interface TradesQuery {
 
 export class Shops extends Resource {
 	async list(gamemode: Gamemode, query: ShopsQuery = {}, options?: RequestOptions): Promise<Page<Shop>> {
-		const page = await this.http.request(
+		return this.http.request(
 			endpoints.shops,
 			{
 				schema: pageSchema(shopSchema),
 				params: { gamemode: nonEmpty(gamemode, 'gamemode') },
-				query: { page: zeroBasedPage(query.page), size: optionalInt(query.size, 'size', 1, 1000) },
+				query: { page: optionalInt(query.page, 'page', 1), size: optionalInt(query.size, 'size', 1, 1000) },
 			},
 			options,
 		);
-		return oneBasedPage(page);
 	}
 
 	async trades(gamemode: Gamemode, query: TradesQuery = {}, options?: RequestOptions): Promise<Page<ShopTrade>> {
-		const page = await this.http.request(
+		return this.http.request(
 			endpoints.shopTrades,
 			{
 				schema: pageSchema(shopTradeSchema),
 				params: { gamemode: nonEmpty(gamemode, 'gamemode') },
 				query: {
 					shop: optionalInt(query.shop, 'shop', 0),
-					page: zeroBasedPage(query.page),
+					page: optionalInt(query.page, 'page', 1),
 					size: optionalInt(query.size, 'size', 1, 100),
 				},
 			},
 			options,
 		);
-		return oneBasedPage(page);
 	}
 
 	iterate(gamemode: Gamemode, query: Omit<ShopsQuery, 'page'> = {}, options?: IterateOptions & RequestOptions) {

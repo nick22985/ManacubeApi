@@ -24,10 +24,6 @@ export function int(value: number, name: string, min: number, max = Number.MAX_S
 	return value;
 }
 
-export function zeroBasedPage(value: number | undefined): number | undefined {
-	return value === undefined ? undefined : int(value, 'page', 1) - 1;
-}
-
 export function optionalInt(value: number | undefined, name: string, min: number, max?: number) {
 	return value === undefined ? undefined : int(value, name, min, max);
 }

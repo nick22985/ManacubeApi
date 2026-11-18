@@ -200,12 +200,12 @@
 					{
 						"name": "page",
 						"in": "query",
-						"description": "Zero-based page index",
+						"description": "Page number, starting at 1",
 						"required": false,
 						"schema": {
 							"type": "integer",
 							"format": "int32",
-							"default": 0
+							"default": 1
 						}
 					},
 					{
@@ -860,12 +860,12 @@
 					{
 						"name": "page",
 						"in": "query",
-						"description": "Zero-based page index",
+						"description": "Page number, starting at 1",
 						"required": false,
 						"schema": {
 							"type": "integer",
 							"format": "int32",
-							"default": 0
+							"default": 1
 						}
 					},
 					{
@@ -974,12 +974,12 @@
 					{
 						"name": "page",
 						"in": "query",
-						"description": "Zero-based page index",
+						"description": "Page number, starting at 1",
 						"required": false,
 						"schema": {
 							"type": "integer",
 							"format": "int32",
-							"default": 0
+							"default": 1
 						}
 					},
 					{
@@ -1886,7 +1886,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad Request",
+						"description": "Page is less than 1",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -1979,7 +1979,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad Request",
+						"description": "Page is less than 1",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -3121,8 +3121,8 @@
 					"page": {
 						"type": "integer",
 						"format": "int32",
-						"description": "Zero-based page index",
-						"example": 0
+						"description": "Page number, starting at 1",
+						"example": 1
 					},
 					"hasMore": {
 						"type": "boolean",
@@ -3509,18 +3509,6 @@
 					"leatherColor": {
 						"type": "object",
 						"properties": {
-							"red": {
-								"type": "integer",
-								"format": "int32"
-							},
-							"green": {
-								"type": "integer",
-								"format": "int32"
-							},
-							"blue": {
-								"type": "integer",
-								"format": "int32"
-							},
 							"colorSpace": {
 								"type": "object",
 								"properties": {
@@ -3546,6 +3534,18 @@
 								"format": "int32"
 							},
 							"alpha": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"red": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"green": {
+								"type": "integer",
+								"format": "int32"
+							},
+							"blue": {
 								"type": "integer",
 								"format": "int32"
 							}

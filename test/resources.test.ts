@@ -145,14 +145,14 @@ describe('auctions', () => {
 });
 
 describe('shops', () => {
-	test('list takes and returns 1-based pages, sending the API 0-based ones', async () => {
+	test('list sends and returns 1-based pages unchanged', async () => {
 		const { api, calls } = mockClient({
-			'/shops/earth?page=2&size=10': ok({ items: [f.shop], page: 2, hasMore: false }),
+			'/shops/earth?page=3&size=10': ok({ items: [f.shop], page: 3, hasMore: false }),
 		});
 		const page = await api.shops.list('earth', { page: 3, size: 10 });
 		expect(page.items[0]!.buyPrice).toBe(1);
 		expect(page.page).toBe(3);
-		expect(calls[0]!.url).toBe('/shops/earth?page=2&size=10');
+		expect(calls[0]!.url).toBe('/shops/earth?page=3&size=10');
 	});
 
 	test('page 0 is rejected', async () => {
@@ -162,15 +162,15 @@ describe('shops', () => {
 
 	test('trades filters by shop', async () => {
 		const { api } = mockClient({
-			'/shops/earth/trades?shop=2700': ok({ items: [f.trade], page: 0, hasMore: false }),
+			'/shops/earth/trades?shop=2700': ok({ items: [f.trade], page: 1, hasMore: false }),
 		});
 		expect((await api.shops.trades('earth', { shop: 2700 })).items[0]!.shopId).toBe(2700);
 	});
 
 	test('iterate walks pages until hasMore is false', async () => {
 		const { api } = mockClient({
-			'/shops/earth?page=0': ok({ items: [f.shop], page: 0, hasMore: true }),
-			'/shops/earth?page=1': ok({ items: [{ ...f.shop, id: 2 }], page: 1, hasMore: false }),
+			'/shops/earth?page=1': ok({ items: [f.shop], page: 1, hasMore: true }),
+			'/shops/earth?page=2': ok({ items: [{ ...f.shop, id: 2 }], page: 2, hasMore: false }),
 		});
 		expect((await toArray(api.shops.iterate('earth'))).map((s) => s.id)).toEqual([1, 2]);
 	});
@@ -184,7 +184,7 @@ describe('shops', () => {
 describe('updates', () => {
 	test('list with realm', async () => {
 		const { api } = mockClient({
-			'/updates?realm=Earth&size=1': ok({ items: [f.update], page: 0, hasMore: true }),
+			'/updates?realm=Earth&size=1': ok({ items: [f.update], page: 1, hasMore: true }),
 		});
 		const page = await api.updates.list({ realm: 'Earth', size: 1 });
 		expect(page.items[0]!.kind).toBe('ECONOMY');
@@ -193,8 +193,8 @@ describe('updates', () => {
 
 	test('iterate', async () => {
 		const { api } = mockClient({
-			'/updates?page=0': ok({ items: [f.update], page: 0, hasMore: true }),
-			'/updates?page=1': ok({ items: [f.update], page: 1, hasMore: false }),
+			'/updates?page=1': ok({ items: [f.update], page: 1, hasMore: true }),
+			'/updates?page=2': ok({ items: [f.update], page: 2, hasMore: false }),
 		});
 		expect(await toArray(api.updates.iterate())).toHaveLength(2);
 	});

@@ -187,8 +187,7 @@ const latest = await toArray(api.updates.iterate({ realm: 'Earth' }), 50);
 const shops = await toArray(api.shops.iterate('earth', {}, { maxPages: 5 }));
 ```
 
-Every `page` argument and every returned `page` is 1-based. The shops and updates endpoints count
-from 0, and the client converts both ways.
+Every `page` argument and every returned `page` is 1-based.
 
 Auction pages have no page count; the iterators follow pages while the API marks
 them `full`. The API sometimes sends an empty body for a page that has data, so the iterators

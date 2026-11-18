@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.1
+
+### Fixed
+
+- `shops.list`, `shops.trades`, `updates.list` and their iterators send `page` as given. The API
+  now counts these pages from 1, so the client no longer subtracts 1 before sending or adds 1 to
+  the returned `page`. Before this, iterators failed on their first request and a given page
+  fetched the one before it.
+
 ## 2.2.0
 
 ### Added
