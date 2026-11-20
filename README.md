@@ -6,7 +6,7 @@
 </div>
 
 <h1 align="center">ManacubeApi</h1>
-<h2>This package is now Archived it has moved here https://github.com/ManaCube/manacube-api-js and become a officially maintained pacakge</h2>
+<h2>This package is now Archived it has moved here: https://github.com/ManaCube/manacube-api-js</h2>
 
 <p align="center">
   <img alt="Github top language" src="https://img.shields.io/github/languages/top/nick22985/ManacubeApi?color=56BEB8">
